@@ -5,12 +5,14 @@ Full-stack production-ready ecommerce application for "COVERLY".
 ## Tech Stack
 
 **Frontend:**
+
 - Next.js 14 (App Router)
 - React, TypeScript
 - Tailwind CSS, Shadcn UI
 - Redux Toolkit, RTK Query
 
 **Backend:**
+
 - Node.js, Express, TypeScript
 - MongoDB (Mongoose)
 - Redis, Cloudinary
@@ -19,6 +21,7 @@ Full-stack production-ready ecommerce application for "COVERLY".
 ## Setup Instructions
 
 ### Backend
+
 1. Navigate to `backend` folder `cd backend`.
 2. Install dependencies: `npm install`.
 3. Configure `.env` file (copy example provided).
@@ -26,12 +29,14 @@ Full-stack production-ready ecommerce application for "COVERLY".
 5. Build: `npm run build` then `npm start`.
 
 ### Frontend
+
 1. Navigate to `frontend` folder `cd frontend`.
 2. Install dependencies: `npm install`.
 3. Configure `.env.local` or edit `next.config.ts` domains.
 4. Run: `npm run dev`.
 
 ## Features
+
 - **Auth**: Complete flow (Register, Login, Protected Routes).
 - **Products**: Admin can Create, Update, Delete, Upload Photos.
 - **Store**: Redux State checks local storage for persistence.
@@ -39,6 +44,7 @@ Full-stack production-ready ecommerce application for "COVERLY".
 - **Checkout**: Razorpay integrated stub on `/checkout`.
 
 ## API Documentation
+
 - POST `/api/v1/auth/register`
 - POST `/api/v1/auth/login`
 - GET `/api/v1/products`
