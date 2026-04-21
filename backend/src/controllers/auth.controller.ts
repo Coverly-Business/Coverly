@@ -1,24 +1,32 @@
 import { Request, Response, NextFunction } from 'express';
-import User from '../models/user.model';
-import ErrorResponse from '../utils/errorResponse'; // Need to create this
+import prisma from '../config/prisma';
+import ErrorResponse from '../utils/errorResponse';
 import jwt from 'jsonwebtoken';
-
-// Temporarily define ErrorResponse interface or class locally if utils not ready
-// Actually, let's just use res.status().json() for now to keep it simple or create the utils file.
+import bcrypt from 'bcryptjs';
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { name, email, password, role } = req.body;
 
+        // Hash password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
         // Create user
-        const user = await User.create({
-            name,
-            email,
-            password,
-            role
+        const user = await prisma.user.create({
+            data: {
+                name,
+                email,
+                password: hashedPassword,
+                role: role || 'user'
+            }
         });
 
-        sendTokenResponse(user, 200, res);
+        // Remove password from response
+        const userResponse = { ...user, _id: user.id };
+        delete (userResponse as any).password;
+
+        sendTokenResponse(userResponse, 200, res);
     } catch (err) {
         next(err);
     }
@@ -34,27 +42,33 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
         }
 
         // Check for user
-        const user = await User.findOne({ email }).select('+password');
+        const user = await prisma.user.findUnique({
+            where: { email }
+        });
 
         if (!user) {
             return res.status(401).json({ success: false, error: 'Invalid credentials' });
         }
 
         // Check if password matches
-        const isMatch = await (user as any).matchPassword(password);
+        const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
             return res.status(401).json({ success: false, error: 'Invalid credentials' });
         }
 
-        sendTokenResponse(user, 200, res);
+        // Remove password from response
+        const userResponse = { ...user, _id: user.id };
+        delete (userResponse as any).password;
+
+        sendTokenResponse(userResponse, 200, res);
     } catch (err) {
         next(err);
     }
 };
 
 const sendTokenResponse = (user: any, statusCode: number, res: Response) => {
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'secret', {
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET || 'secret', {
         expiresIn: '30d'
     });
 

@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import User, { IUser } from '../models/user.model';
+import prisma from '../config/prisma';
 import ErrorResponse from '../utils/errorResponse';
 
 interface AuthRequest extends Request {
-    user?: IUser | null;
+    user?: any; // You can use prisma user type here if you prefer
 }
 
 export const protect = async (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -25,7 +25,9 @@ export const protect = async (req: AuthRequest, res: Response, next: NextFunctio
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
-        req.user = await User.findById((decoded as any).id);
+        req.user = await prisma.user.findUnique({
+            where: { id: (decoded as any).id as string }
+        });
         next();
     } catch (err) {
         return next(new ErrorResponse('Not authorized to access this route', 401));

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
+import { API_BASE_URL } from '@/config/api';
 import { Loader2, ArrowLeft, Check, ShieldCheck, Truck } from 'lucide-react';
 import Link from 'next/link';
 
@@ -36,7 +37,7 @@ export default function ProductDetailPage() {
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const res = await fetch(`http://localhost:5000/api/v1/products/${id}`);
+                const res = await fetch(`${API_BASE_URL}/products/${id}`);
                 if (!res.ok) {
                     throw new Error('Product not found');
                 }

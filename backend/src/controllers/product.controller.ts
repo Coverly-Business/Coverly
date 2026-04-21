@@ -1,12 +1,25 @@
 import { Request, Response, NextFunction } from 'express';
-import Product from '../models/product.model';
+import prisma from '../config/prisma';
 import ErrorResponse from '../utils/errorResponse';
 import cloudinary from '../config/cloudinary';
 
 export const getProducts = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const products = await Product.find();
-        res.status(200).json({ success: true, count: products.length, data: products });
+        const products = await prisma.product.findMany({
+            include: {
+                variants: true,
+                images: true
+            }
+        });
+
+        // Map images to array of strings for frontend compatibility
+        const formattedProducts = products.map((p: any) => ({
+            ...p,
+            _id: p.id,
+            images: p.images.map((img: any) => img.url)
+        }));
+
+        res.status(200).json({ success: true, count: formattedProducts.length, data: formattedProducts });
     } catch (err) {
         next(err);
     }
@@ -14,9 +27,25 @@ export const getProducts = async (req: Request, res: Response, next: NextFunctio
 
 export const createProduct = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        // Add user to req,body if needed
-        const product = await Product.create(req.body);
-        res.status(201).json({ success: true, data: product });
+        const { variants, images, ...productData } = req.body;
+
+        const product = await prisma.product.create({
+            data: {
+                ...productData,
+                variants: variants ? {
+                    create: variants
+                } : undefined,
+                images: images ? {
+                    create: images.map((url: string) => ({ url }))
+                } : undefined
+            },
+            include: {
+                variants: true,
+                images: true
+            }
+        });
+
+        res.status(201).json({ success: true, data: { ...product, _id: product.id } });
     } catch (err) {
         next(err);
     }
@@ -24,18 +53,30 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
 
 export const updateProduct = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let product = await Product.findById(req.params.id);
+        const { variants, images, ...productData } = req.body;
+
+        let product = await prisma.product.findUnique({
+            where: { id: req.params.id as string }
+        });
 
         if (!product) {
             return next(new ErrorResponse(`Product not found with id of ${req.params.id}`, 404));
         }
 
-        product = await Product.findByIdAndUpdate(req.params.id, req.body, {
-            new: true,
-            runValidators: true
+        const updatedProduct = await prisma.product.update({
+            where: { id: req.params.id as string },
+            data: {
+                ...productData,
+                // Nested updates can be complex, for simplicity we might just update top level fields
+                // or use deleteMany/create if variants are replaced
+            },
+            include: {
+                variants: true,
+                images: true
+            }
         });
 
-        res.status(200).json({ success: true, data: product });
+        res.status(200).json({ success: true, data: { ...updatedProduct, _id: updatedProduct.id } });
     } catch (err) {
         next(err);
     }
@@ -43,13 +84,17 @@ export const updateProduct = async (req: Request, res: Response, next: NextFunct
 
 export const deleteProduct = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const product = await Product.findById(req.params.id);
+        const product = await prisma.product.findUnique({
+            where: { id: req.params.id as string }
+        });
 
         if (!product) {
             return next(new ErrorResponse(`Product not found with id of ${req.params.id}`, 404));
         }
 
-        await product.deleteOne();
+        await prisma.product.delete({
+            where: { id: req.params.id as string }
+        });
 
         res.status(200).json({ success: true, data: {} });
     } catch (err) {
@@ -60,7 +105,9 @@ export const deleteProduct = async (req: Request, res: Response, next: NextFunct
 // Upload photo for product
 export const uploadProductImage = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const product = await Product.findById(req.params.id);
+        const product = await prisma.product.findUnique({
+            where: { id: req.params.id as string }
+        });
 
         if (!product) {
             return next(new ErrorResponse(`Product not found with id of ${req.params.id}`, 404));
@@ -76,13 +123,17 @@ export const uploadProductImage = async (req: Request, res: Response, next: Next
             upload_preset: 'coverly_products'
         });
 
-        // Add to images array
-        product.images.push(uploadResponse.secure_url);
-        await product.save();
+        // Add to images table
+        const newImage = await prisma.image.create({
+            data: {
+                url: uploadResponse.secure_url,
+                productId: req.params.id as string
+            }
+        });
 
         res.status(200).json({
             success: true,
-            data: product.images
+            data: newImage.url
         });
     } catch (err) {
         next(err);

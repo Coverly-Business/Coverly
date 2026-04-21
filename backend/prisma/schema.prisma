@@ -1,0 +1,78 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("user")
+  createdAt DateTime @default(now())
+}
+
+model Product {
+  id            String    @id @default(uuid())
+  name          String
+  slug          String    @unique
+  description   String
+  basePrice     Float
+  category      String
+  material      String?
+  discount      Int?
+  averageRating Float?
+  images        Image[]
+  variants      Variant[]
+  createdAt     DateTime  @default(now())
+}
+
+model Variant {
+  id         String  @id @default(uuid())
+  phoneBrand String
+  phoneModel String
+  caseType   String
+  color      String?
+  price      Float?
+  stock      Int     @default(0)
+  sku        String  @unique
+  productId  String
+  product    Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Image {
+  id        String  @id @default(uuid())
+  url       String
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Order {
+  id              String      @id @default(uuid())
+  userId          String?
+  guestEmail      String?
+  totalAmount     Float
+  shippingAddress String      // Store as JSON string
+  paymentMethod   String      @default("COD")
+  status          String      @default("PENDING") // PENDING, PAID, SHIPPED, DELIVERED
+  items           OrderItem[]
+  createdAt       DateTime    @default(now())
+}
+
+model OrderItem {
+  id        String  @id @default(uuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  sku       String
+  name      String
+  quantity  Int
+  price     Float
+}
