@@ -8,7 +8,7 @@ export const getProducts = async (req: Request, res: Response, next: NextFunctio
         const products = await prisma.product.findMany({
             include: {
                 variants: true,
-                 images: true 
+                images: true 
             }
         });
 
