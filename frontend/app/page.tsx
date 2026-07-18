@@ -5,6 +5,12 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { PhoneModelSection } from '@/components/PhoneModelSection';
+import { Stats } from "@/components/Stats";
+import { PinnedShowcase } from '@/components/PinnedShowcase';
+import { CardCarousel } from '@/components/CardCarousel';
+import { useGSAP } from '@gsap/react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowRight, ShoppingBag, ShieldCheck, Zap, Star } from 'lucide-react';
 import { API_BASE_URL } from '@/config/api';
@@ -19,12 +25,24 @@ interface Product {
     discount?: number;
 }
 
+gsap.registerPlugin(ScrollTrigger);
+
 export default function Home() {
     const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const { scrollY } = useScroll();
     const y1 = useTransform(scrollY, [0, 500], [0, 100]);
     const y2 = useTransform(scrollY, [0, 500], [0, -100]);
+    useGSAP(() => {
+        gsap.to(".floating-badge", {
+            y: -12,
+            duration: 1.6,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut",
+            stagger: 0.3,
+        });
+    }, []);
 
     useEffect(() => {
         const fetchFeatured = async () => {
@@ -60,7 +78,7 @@ export default function Home() {
 
                 <div className="container mx-auto max-w-7xl px-4 md:px-6 relative z-10">
                     <div className="grid lg:grid-cols-2 gap-12 items-center">
-                        <motion.div 
+                        <motion.div
                             initial={{ opacity: 0, x: -50 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.8, ease: "easeOut" }}
@@ -102,7 +120,7 @@ export default function Home() {
                             </div>
                         </motion.div>
 
-                        <motion.div 
+                        <motion.div
                             initial={{ opacity: 0, scale: 0.8, rotate: 5 }}
                             animate={{ opacity: 1, scale: 1, rotate: 0 }}
                             transition={{ duration: 1, ease: "easeOut" }}
@@ -110,18 +128,18 @@ export default function Home() {
                             className="relative hidden lg:block"
                         >
                             <div className="relative z-10 aspect-[4/5] w-[450px] mx-auto overflow-hidden rounded-[40px] glass-card p-4">
-                                <Image 
-                                    src="/images/products/hero_lifestyle.png" 
+                                <Image
+                                    src="/images/products/hero_lifestyle.png"
                                     alt="Premium Lifestyle Collection"
                                     fill
                                     className="object-cover rounded-[32px]"
                                 />
                             </div>
-                            <div className="absolute -bottom-10 -right-10 glass-card p-6 rounded-3xl animate-bounce-slow">
+                            <div className="absolute -bottom-10 -right-10 glass-card p-6 rounded-3xl floating-badge">
                                 <p className="text-xs font-black uppercase tracking-widest text-primary mb-1">Price Drop</p>
                                 <p className="text-2xl font-bold">₹ 599</p>
                             </div>
-                            <div className="absolute -top-10 -left-10 glass-card p-4 rounded-3xl">
+                            <div className="absolute -top-10 -left-10 glass-card p-4 rounded-3xl floating-badge">
                                 <div className="flex items-center gap-2">
                                     <div className="h-3 w-3 rounded-full bg-green-500 animate-pulse" />
                                     <span className="text-xs font-bold uppercase tracking-widest">In Stock</span>
@@ -146,14 +164,14 @@ export default function Home() {
                     </div>
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
                         {categories.map((cat, idx) => (
-                            <motion.div 
+                            <motion.div
                                 key={cat.name}
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 transition={{ delay: idx * 0.1 }}
                                 viewport={{ once: true }}
                             >
-                                <Link 
+                                <Link
                                     href={`/products?brand=${cat.brand}`}
                                     className="group relative block aspect-square overflow-hidden rounded-3xl bg-background border transition-all hover:shadow-2xl hover:-translate-y-2"
                                 >
@@ -169,7 +187,7 @@ export default function Home() {
                     </div>
                 </div>
             </section>
-
+            <PinnedShowcase />
             {/* Elite Accessories Section */}
             <section className="py-24 bg-muted/30 relative overflow-hidden">
                 <div className="container mx-auto max-w-7xl px-4 md:px-6 relative z-10">
@@ -186,15 +204,15 @@ export default function Home() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <motion.div 
+                        <motion.div
                             whileHover={{ y: -10 }}
                             className="group relative h-[450px] rounded-[40px] overflow-hidden glass-card shadow-2xl"
                         >
-                            <Image 
-                                src="/images/products/magsafe_charger.png" 
-                                alt="MagSafe Chargers" 
-                                fill 
-                                className="object-cover transition-transform duration-700 group-hover:scale-110" 
+                            <Image
+                                src="/images/products/magsafe_charger.png"
+                                alt="MagSafe Chargers"
+                                fill
+                                className="object-cover transition-transform duration-700 group-hover:scale-110"
                             />
                             <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-10">
                                 <div className="space-y-3">
@@ -208,15 +226,15 @@ export default function Home() {
                             </div>
                         </motion.div>
 
-                        <motion.div 
+                        <motion.div
                             whileHover={{ y: -10 }}
                             className="group relative h-[450px] rounded-[40px] overflow-hidden glass-card shadow-2xl"
                         >
-                            <Image 
-                                src="/images/products/airpods_leather_case.png" 
-                                alt="Audio Accessories" 
-                                fill 
-                                className="object-cover transition-transform duration-700 group-hover:scale-110" 
+                            <Image
+                                src="/images/products/airpods_leather_case.png"
+                                alt="Audio Accessories"
+                                fill
+                                className="object-cover transition-transform duration-700 group-hover:scale-110"
                             />
                             <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-10">
                                 <div className="space-y-3">
@@ -249,7 +267,7 @@ export default function Home() {
                             ))
                         ) : (
                             featuredProducts.map((p, idx) => (
-                                <motion.div 
+                                <motion.div
                                     key={p._id}
                                     initial={{ opacity: 0, scale: 0.9 }}
                                     whileInView={{ opacity: 1, scale: 1 }}
@@ -288,12 +306,19 @@ export default function Home() {
                     </div>
                 </div>
             </section>
+            <CardCarousel />
 
             {/* Features Banner */}
             <section className="py-16 border-t border-b bg-primary/5">
                 <div className="container mx-auto max-w-7xl px-4 md:px-6">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-                        <div className="flex items-center gap-4">
+                        <motion.div
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0 }}
+                            viewport={{ once: true }}
+                            className="flex items-center gap-4"
+                        >
                             <div className="bg-primary/10 p-4 rounded-2xl">
                                 <ShieldCheck className="h-8 w-8 text-primary" />
                             </div>
@@ -301,8 +326,14 @@ export default function Home() {
                                 <h4 className="font-black uppercase italic tracking-tight">Premium Quality</h4>
                                 <p className="text-sm text-muted-foreground">Certified impact protection.</p>
                             </div>
-                        </div>
-                        <div className="flex items-center gap-4">
+                        </motion.div>
+                        <motion.div
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.15 }}
+                            viewport={{ once: true }}
+                            className="flex items-center gap-4"
+                        >
                             <div className="bg-primary/10 p-4 rounded-2xl">
                                 <ShoppingBag className="h-8 w-8 text-primary" />
                             </div>
@@ -310,8 +341,14 @@ export default function Home() {
                                 <h4 className="font-black uppercase italic tracking-tight">Fast Shipping</h4>
                                 <p className="text-sm text-muted-foreground">2-day delivery in metro cities.</p>
                             </div>
-                        </div>
-                        <div className="flex items-center gap-4">
+                        </motion.div>
+                        <motion.div
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.3 }}
+                            viewport={{ once: true }}
+                            className="flex items-center gap-4"
+                        >
                             <div className="bg-primary/10 p-4 rounded-2xl">
                                 <Zap className="h-8 w-8 text-primary" />
                             </div>
@@ -319,11 +356,12 @@ export default function Home() {
                                 <h4 className="font-black uppercase italic tracking-tight">7-Day Returns</h4>
                                 <p className="text-sm text-muted-foreground">Easy, no-questions-asked refunds.</p>
                             </div>
-                        </div>
+                        </motion.div>
                     </div>
                 </div>
             </section>
 
+            <Stats />
             <PhoneModelSection />
         </div>
     );

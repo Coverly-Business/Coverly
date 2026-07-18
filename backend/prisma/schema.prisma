@@ -1,17 +1,14 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id        String   @id @default(uuid())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   name      String
   email     String   @unique
   password  String
@@ -20,7 +17,7 @@ model User {
 }
 
 model Product {
-  id            String    @id @default(uuid())
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
   name          String
   slug          String    @unique
   description   String
@@ -35,7 +32,7 @@ model Product {
 }
 
 model Variant {
-  id         String  @id @default(uuid())
+  id         String  @id @default(auto()) @map("_id") @db.ObjectId
   phoneBrand String
   phoneModel String
   caseType   String
@@ -43,32 +40,32 @@ model Variant {
   price      Float?
   stock      Int     @default(0)
   sku        String  @unique
-  productId  String
+  productId  String  @db.ObjectId
   product    Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model Image {
-  id        String  @id @default(uuid())
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
   url       String
-  productId String
+  productId String  @db.ObjectId
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model Order {
-  id              String      @id @default(uuid())
+  id              String      @id @default(auto()) @map("_id") @db.ObjectId
   userId          String?
   guestEmail      String?
   totalAmount     Float
-  shippingAddress String      // Store as JSON string
+  shippingAddress String
   paymentMethod   String      @default("COD")
-  status          String      @default("PENDING") // PENDING, PAID, SHIPPED, DELIVERED
+  status          String      @default("PENDING")
   items           OrderItem[]
   createdAt       DateTime    @default(now())
 }
 
 model OrderItem {
-  id        String  @id @default(uuid())
-  orderId   String
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  orderId   String  @db.ObjectId
   order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   productId String
   sku       String

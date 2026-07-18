@@ -83,7 +83,7 @@ const products = [
 
 const seedDB = async () => {
     try {
-        console.log('Seeding SQLite database with Prisma...');
+        console.log('Seeding MongoDB with Prisma...');
 
         // Clear existing data
         await prisma.variant.deleteMany();
@@ -93,7 +93,7 @@ const seedDB = async () => {
 
         // Insert new products
         console.log('Inserting products...');
-        
+
         for (const p of products) {
             const { variants, images, ...productData } = p;
             await prisma.product.create({
