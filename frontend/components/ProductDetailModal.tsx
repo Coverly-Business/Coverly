@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { useDispatch } from 'react-redux';
 import { addItem, CartItem } from '@/features/cart/cartSlice';
 import { useRouter } from 'next/navigation';
+import { useLenis } from 'lenis/react';
 
 interface Variant {
     phoneBrand: string;
@@ -46,16 +47,21 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
     const [selectedModel, setSelectedModel] = useState('');
     const [adding, setAdding] = useState(false);
 
+    const lenis = useLenis();
+
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = 'hidden';
+            lenis?.stop();
         } else {
             document.body.style.overflow = 'unset';
+            lenis?.start();
         }
         return () => {
             document.body.style.overflow = 'unset';
+            lenis?.start();
         };
-    }, [isOpen]);
+    }, [isOpen, lenis]);
 
     if (!product) return null;
 
@@ -65,7 +71,7 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
 
     const handleAddToCart = () => {
         if (!product) return;
-        
+
         const cartItem: CartItem = {
             id: `${selectedVariant.sku || product._id}-${selectedModel}-${selectedColor}-${selectedCaseType}`,
             productId: product._id,
@@ -89,7 +95,7 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
 
     const handleBuyNow = () => {
         if (!product) return;
-        
+
         const cartItem: CartItem = {
             id: `${selectedVariant.sku || product._id}-${selectedModel}-${selectedColor}-${selectedCaseType}`,
             productId: product._id,
@@ -115,23 +121,24 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
         <AnimatePresence>
             {isOpen && (
                 <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6 lg:p-8">
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
                         className="absolute inset-0 bg-black/60 backdrop-blur-xl"
                     />
-                    
-                    <motion.div 
+
+                    <motion.div
                         initial={{ opacity: 0, scale: 0.9, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
                         transition={{ type: "spring", damping: 25, stiffness: 300 }}
                         className="relative w-full max-w-5xl max-h-[90vh] overflow-y-auto glass-card rounded-[40px] shadow-2xl scrollbar-hide"
+                        data-lenis-prevent
                     >
                         {/* Close Button */}
-                        <button 
+                        <button
                             onClick={onClose}
                             className="absolute top-6 right-6 z-10 p-3 rounded-full glass hover:bg-primary hover:text-white transition-all shadow-xl group"
                         >
@@ -218,9 +225,9 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
                                     </div>
 
                                     <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                                        <Button 
-                                            size="lg" 
-                                            className="flex-1 h-16 rounded-[20px] text-xs font-black uppercase tracking-widest shadow-2xl shadow-primary/20 transition-all hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2" 
+                                        <Button
+                                            size="lg"
+                                            className="flex-1 h-16 rounded-[20px] text-xs font-black uppercase tracking-widest shadow-2xl shadow-primary/20 transition-all hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2"
                                             disabled={!selectedModel || adding}
                                             onClick={handleAddToCart}
                                         >
@@ -233,9 +240,9 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
                                             )}
                                             {adding ? "Adding..." : "Add to Cart"}
                                         </Button>
-                                        <Button 
-                                            size="lg" 
-                                            variant="secondary" 
+                                        <Button
+                                            size="lg"
+                                            variant="secondary"
                                             className="flex-1 h-16 rounded-[20px] text-xs font-black uppercase tracking-widest transition-all hover:bg-muted active:scale-95"
                                             onClick={handleBuyNow}
                                         >
