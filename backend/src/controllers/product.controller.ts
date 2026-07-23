@@ -8,7 +8,7 @@ export const getProducts = async (req: Request, res: Response, next: NextFunctio
         const products = await prisma.product.findMany({
             include: {
                 variants: true,
-                images: true 
+                images: true
             }
         });
 
@@ -20,6 +20,32 @@ export const getProducts = async (req: Request, res: Response, next: NextFunctio
         }));
 
         res.status(200).json({ success: true, count: formattedProducts.length, data: formattedProducts });
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const getProduct = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const product = await prisma.product.findUnique({
+            where: { id: req.params.id as string },
+            include: {
+                variants: true,
+                images: true
+            }
+        });
+
+        if (!product) {
+            return next(new ErrorResponse(`Product not found with id of ${req.params.id}`, 404));
+        }
+
+        const formattedProduct = {
+            ...product,
+            _id: product.id,
+            images: product.images.map((img: any) => img.url)
+        };
+
+        res.status(200).json({ success: true, data: formattedProduct });
     } catch (err) {
         next(err);
     }
@@ -63,13 +89,26 @@ export const updateProduct = async (req: Request, res: Response, next: NextFunct
             return next(new ErrorResponse(`Product not found with id of ${req.params.id}`, 404));
         }
 
+        // Agar variants (stock/quantity) update karne ko bheje gaye hain
+        if (variants) {
+            for (const variant of variants) {
+                if (variant.id) {
+                    // Existing variant hai, usko update karo
+                    await prisma.variant.update({
+                        where: { id: variant.id },
+                        data: {
+                            stock: variant.stock,
+                            price: variant.price,
+                            color: variant.color,
+                        }
+                    });
+                }
+            }
+        }
+
         const updatedProduct = await prisma.product.update({
             where: { id: req.params.id as string },
-            data: {
-                ...productData,
-                // Nested updates can be complex, for simplicity we might just update top level fields
-                // or use deleteMany/create if variants are replaced
-            },
+            data: productData,
             include: {
                 variants: true,
                 images: true
@@ -119,10 +158,7 @@ export const uploadProductImage = async (req: Request, res: Response, next: Next
 
         // Use cloudinary to upload
         const fileStr = req.file.path;
-        const uploadResponse = await cloudinary.uploader.upload(fileStr, {
-            upload_preset: 'coverly_products'
-        });
-
+        const uploadResponse = await cloudinary.uploader.upload(fileStr);
         // Add to images table
         const newImage = await prisma.image.create({
             data: {
@@ -136,6 +172,7 @@ export const uploadProductImage = async (req: Request, res: Response, next: Next
             data: newImage.url
         });
     } catch (err) {
+        console.log("IMAGE UPLOAD ERROR:", err);
         next(err);
     }
 };

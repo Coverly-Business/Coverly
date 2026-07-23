@@ -1,5 +1,5 @@
 import express from 'express';
-import { getProducts, createProduct, updateProduct, deleteProduct, uploadProductImage } from '../controllers/product.controller';
+import { getProducts, getProduct, createProduct, updateProduct, deleteProduct, uploadProductImage } from '../controllers/product.controller';
 import { protect, authorize } from '../middlewares/auth.middleware';
 import { upload } from '../middlewares/upload.middleware';
 
@@ -8,6 +8,8 @@ const router = express.Router();
 router.route('/')
     .get(getProducts)
     .post(protect, authorize('admin'), createProduct);
+
+router.route('/:id').get(getProduct);
 
 router.route('/:id')
     .put(protect, authorize('admin'), updateProduct)

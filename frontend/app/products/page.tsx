@@ -50,14 +50,14 @@ function ProductsContent() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [searchQuery, setSearchQuery] = useState(initialSearch);
-    
+
     // Advanced Filters State
     const [selectedBrands, setSelectedBrands] = useState<string[]>(initialBrand ? [initialBrand] : []);
     const [selectedCategories, setSelectedCategories] = useState<string[]>(initialCategory ? [initialCategory] : []);
-    const [selectedPriceRanges, setSelectedPriceRanges] = useState<{min: number, max: number}[]>([]);
+    const [selectedPriceRanges, setSelectedPriceRanges] = useState<{ min: number, max: number }[]>([]);
     const [selectedMaterials, setSelectedMaterials] = useState<string[]>([]);
     const [minRating, setMinRating] = useState<number | null>(null);
-    
+
     // UI State
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -83,7 +83,7 @@ function ProductsContent() {
         return products.filter((product: any) => {
             const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(product.category);
             const matchesBrand = selectedBrands.length === 0 || product.variants.some((v: any) => selectedBrands.includes(v.phoneBrand));
-            const matchesPrice = selectedPriceRanges.length === 0 || selectedPriceRanges.some(range => 
+            const matchesPrice = selectedPriceRanges.length === 0 || selectedPriceRanges.some(range =>
                 product.basePrice >= range.min && product.basePrice <= range.max
             );
             const matchesMaterial = selectedMaterials.length === 0 || (product.material && selectedMaterials.includes(product.material));
@@ -136,8 +136,8 @@ function ProductsContent() {
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
-                    <Button 
-                        variant="secondary" 
+                    <Button
+                        variant="secondary"
                         className="h-12 w-12 md:hidden rounded-full p-0"
                         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                     >
@@ -157,7 +157,7 @@ function ProductsContent() {
                             <h3 className="font-black uppercase italic tracking-widest flex items-center gap-2">
                                 <Filter className="h-4 w-4 text-primary" /> Filters
                             </h3>
-                            <button 
+                            <button
                                 onClick={() => { setSelectedBrands([]); setSelectedCategories([]); setSelectedPriceRanges([]); setSelectedMaterials([]); setMinRating(null); }}
                                 className="text-[10px] font-black text-primary uppercase tracking-tighter hover:underline"
                             >
@@ -175,8 +175,8 @@ function ProductsContent() {
                                         onClick={() => setSelectedCategories(prev => prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat])}
                                         className={cn(
                                             "flex items-center justify-between px-4 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl border transition-all",
-                                            selectedCategories.includes(cat) 
-                                                ? "bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/10" 
+                                            selectedCategories.includes(cat)
+                                                ? "bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/10"
                                                 : "bg-background hover:bg-muted"
                                         )}
                                     >
@@ -197,8 +197,8 @@ function ProductsContent() {
                                         onClick={() => setSelectedBrands(prev => prev.includes(brand.brand) ? prev.filter(b => b !== brand.brand) : [...prev, brand.brand])}
                                         className={cn(
                                             "px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl border transition-all",
-                                            selectedBrands.includes(brand.brand) 
-                                                ? "bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/20" 
+                                            selectedBrands.includes(brand.brand)
+                                                ? "bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/20"
                                                 : "bg-background hover:bg-muted"
                                         )}
                                     >
@@ -278,7 +278,7 @@ function ProductsContent() {
                 <div>
                     <AnimatePresence mode="wait">
                         {filteredProducts.length > 0 ? (
-                            <motion.div 
+                            <motion.div
                                 layout
                                 className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8"
                             >
@@ -328,7 +328,7 @@ function ProductsContent() {
                                 ))}
                             </motion.div>
                         ) : (
-                            <motion.div 
+                            <motion.div
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 className="flex flex-col items-center justify-center py-40 glass-card rounded-[40px] text-center"
@@ -338,7 +338,7 @@ function ProductsContent() {
                                 </div>
                                 <h2 className="text-3xl font-black uppercase italic italic">No Matches Found</h2>
                                 <p className="text-muted-foreground mt-2 max-w-sm font-medium">Try relaxing your filters or searching for something else.</p>
-                                <Button 
+                                <Button
                                     className="mt-8 rounded-full px-10 h-14 font-black uppercase tracking-widest text-[11px]"
                                     onClick={() => { setSelectedBrands([]); setSelectedPriceRanges([]); setSelectedMaterials([]); setSearchQuery(''); }}
                                 >
@@ -350,10 +350,10 @@ function ProductsContent() {
                 </div>
             </div>
 
-            <ProductDetailModal 
-                product={selectedProduct} 
-                isOpen={isModalOpen} 
-                onClose={() => setIsModalOpen(false)} 
+            <ProductDetailModal
+                product={selectedProduct}
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
             />
         </div>
     );
