@@ -159,7 +159,13 @@ export const uploadProductImage = async (req: Request, res: Response, next: Next
         // Use cloudinary to upload
         const fileStr = req.file.path;
         const uploadResponse = await cloudinary.uploader.upload(fileStr);
-        // Add to images table
+
+        // Purani saari images hata do is product ki
+        await prisma.image.deleteMany({
+            where: { productId: req.params.id as string }
+        });
+
+        // Nayi image add karo
         const newImage = await prisma.image.create({
             data: {
                 url: uploadResponse.secure_url,
@@ -172,7 +178,6 @@ export const uploadProductImage = async (req: Request, res: Response, next: Next
             data: newImage.url
         });
     } catch (err) {
-        console.log("IMAGE UPLOAD ERROR:", err);
         next(err);
     }
 };
