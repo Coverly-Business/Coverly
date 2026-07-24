@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import SMTPTransport from 'nodemailer/lib/smtp-transport';
 
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
@@ -11,7 +12,8 @@ const transporter = nodemailer.createTransport({
     tls: {
         rejectUnauthorized: false,
     },
-});
+    family: 4,
+} as SMTPTransport.Options);
 
 interface OrderEmailData {
     to: string;
