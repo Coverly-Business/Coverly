@@ -5,13 +5,13 @@ import { useSelector, useDispatch } from 'react-redux';
 import { selectCartItems, selectCartTotal, clearCart } from '@/features/cart/cartSlice';
 import { Button } from '@/components/ui/button';
 import { API_BASE_URL } from '@/config/api';
-import { 
-    ChevronLeft, 
-    CreditCard, 
-    Truck, 
-    ShieldCheck, 
-    ArrowRight, 
-    ShoppingBag, 
+import {
+    ChevronLeft,
+    CreditCard,
+    Truck,
+    ShieldCheck,
+    ArrowRight,
+    ShoppingBag,
     Lock,
     MapPin,
     Phone,
@@ -32,6 +32,7 @@ export default function CheckoutPage() {
 
     const [loading, setLoading] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState<'COD' | 'CARD' | 'UPI'>('CARD');
+    const [orderPlaced, setOrderPlaced] = useState(false);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -42,7 +43,7 @@ export default function CheckoutPage() {
         pincode: '',
     });
 
-    if (cartItems.length === 0) {
+    if (cartItems.length === 0 && !orderPlaced) {
         if (typeof window !== 'undefined') {
             router.push('/products');
         }
@@ -74,8 +75,9 @@ export default function CheckoutPage() {
             const data = await res.json();
 
             if (data.success) {
-                dispatch(clearCart());
+                setOrderPlaced(true);
                 router.push(`/order-success?id=${data.data.id}`);
+                dispatch(clearCart());
             } else {
                 alert('Something went wrong. Please try again.');
             }
@@ -116,11 +118,11 @@ export default function CheckoutPage() {
                                 </div>
                                 <h2 className="text-2xl font-black uppercase italic tracking-tight">Personal Details</h2>
                             </div>
-                            
+
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">Full Name</label>
-                                    <input 
+                                    <input
                                         required
                                         name="name"
                                         value={formData.name}
@@ -131,7 +133,7 @@ export default function CheckoutPage() {
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">Email Address</label>
-                                    <input 
+                                    <input
                                         required
                                         type="email"
                                         name="email"
@@ -152,11 +154,11 @@ export default function CheckoutPage() {
                                 </div>
                                 <h2 className="text-2xl font-black uppercase italic tracking-tight">Shipping Information</h2>
                             </div>
-                            
+
                             <div className="space-y-6">
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">Street Address</label>
-                                    <textarea 
+                                    <textarea
                                         required
                                         name="address"
                                         value={formData.address}
@@ -169,7 +171,7 @@ export default function CheckoutPage() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">City</label>
-                                        <input 
+                                        <input
                                             required
                                             name="city"
                                             value={formData.city}
@@ -180,7 +182,7 @@ export default function CheckoutPage() {
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">Pincode</label>
-                                        <input 
+                                        <input
                                             required
                                             name="pincode"
                                             value={formData.pincode}
@@ -192,7 +194,7 @@ export default function CheckoutPage() {
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">Phone Number</label>
-                                    <input 
+                                    <input
                                         required
                                         name="phone"
                                         value={formData.phone}
@@ -212,9 +214,9 @@ export default function CheckoutPage() {
                                 </div>
                                 <h2 className="text-2xl font-black uppercase italic tracking-tight">Payment Method</h2>
                             </div>
-                            
+
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <button 
+                                <button
                                     type="button"
                                     onClick={() => setPaymentMethod('CARD')}
                                     className={cn(
@@ -225,7 +227,7 @@ export default function CheckoutPage() {
                                     <CreditCard className={cn("mx-auto h-6 w-6", paymentMethod === 'CARD' ? "text-primary" : "text-muted-foreground")} />
                                     <div className="text-[10px] font-black uppercase tracking-widest">Card</div>
                                 </button>
-                                <button 
+                                <button
                                     type="button"
                                     onClick={() => setPaymentMethod('UPI')}
                                     className={cn(
@@ -236,7 +238,7 @@ export default function CheckoutPage() {
                                     <ArrowRight className={cn("mx-auto h-6 w-6", paymentMethod === 'UPI' ? "text-primary" : "text-muted-foreground")} />
                                     <div className="text-[10px] font-black uppercase tracking-widest">UPI</div>
                                 </button>
-                                <button 
+                                <button
                                     type="button"
                                     onClick={() => setPaymentMethod('COD')}
                                     className={cn(
@@ -255,7 +257,7 @@ export default function CheckoutPage() {
                     <div className="lg:sticky lg:top-[120px] h-fit">
                         <div className="glass-card rounded-[40px] p-8 space-y-8 shadow-2xl">
                             <h2 className="text-2xl font-black uppercase italic">Order Summary</h2>
-                            
+
                             <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                                 {cartItems.map((item: any) => (
                                     <div key={item.id} className="flex gap-4 items-center">
@@ -292,7 +294,7 @@ export default function CheckoutPage() {
                                 </div>
                             </div>
 
-                            <Button 
+                            <Button
                                 type="submit"
                                 disabled={loading}
                                 className="w-full h-16 rounded-[24px] text-xs font-black uppercase tracking-[0.2em] italic shadow-2xl shadow-primary/30 group"

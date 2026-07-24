@@ -14,7 +14,7 @@ function SuccessContent() {
     return (
         <div className="min-h-[80vh] flex items-center justify-center py-20 px-4">
             <div className="max-w-xl w-full text-center space-y-10">
-                <motion.div 
+                <motion.div
                     initial={{ scale: 0.5, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ type: "spring", stiffness: 260, damping: 20 }}
@@ -22,7 +22,7 @@ function SuccessContent() {
                 >
                     <div className="h-32 w-32 rounded-full bg-green-500/10 flex items-center justify-center relative">
                         <CheckCircle2 className="h-20 w-20 text-green-500" />
-                        <motion.div 
+                        <motion.div
                             animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
                             transition={{ repeat: Infinity, duration: 2 }}
                             className="absolute inset-0 rounded-full bg-green-500/20"
@@ -38,11 +38,11 @@ function SuccessContent() {
                 <div className="glass-card rounded-[32px] p-8 space-y-6 shadow-2xl">
                     <div className="flex flex-col items-center gap-4">
                         <div className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Order Reference</div>
-                        <div className="text-xl font-mono font-black select-all bg-muted/50 px-4 py-2 rounded-xl border border-dashed text-primary">
-                            #{orderId?.slice(-12).toUpperCase()}
+                        <div className="text-sm font-mono font-black select-all bg-muted/50 px-4 py-2 rounded-xl border border-dashed text-primary break-all">
+                            {orderId}
                         </div>
                     </div>
-                    
+
                     <div className="h-px bg-muted-foreground/10 w-full" />
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

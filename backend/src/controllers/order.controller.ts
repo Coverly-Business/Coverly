@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import prisma from '../config/prisma';
 import ErrorResponse from '../utils/errorResponse';
+import { sendOrderConfirmationEmail } from '../utils/sendEmail';
 
 // @desc    Create new order
 // @route   POST /api/v1/orders
@@ -38,11 +39,21 @@ export const createOrder = async (req: Request, res: Response, next: NextFunctio
                 }
             });
 
-            // 2. We could update stock here if variants tracking is complete
-            // For now, we trust the frontend/basic seeder stock
-
             return newOrder;
         });
+
+        // Order confirmation email bhejo (agar email fail bhi ho, order block nahi hoga)
+        if (guestEmail) {
+            const customerName = shippingAddress?.name || 'Customer';
+            sendOrderConfirmationEmail({
+                to: guestEmail,
+                customerName,
+                orderId: order.id,
+                items: order.items,
+                totalAmount: order.totalAmount,
+                paymentMethod: order.paymentMethod,
+            });
+        }
 
         res.status(201).json({
             success: true,
