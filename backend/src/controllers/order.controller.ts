@@ -86,3 +86,58 @@ export const getOrder = async (req: Request, res: Response, next: NextFunction) 
         next(err);
     }
 };
+
+// @desc    Get all orders (Admin only)
+// @route   GET /api/v1/orders
+// @access  Private/Admin
+export const getOrders = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const orders = await prisma.order.findMany({
+            include: { items: true },
+            orderBy: { createdAt: 'desc' }
+        });
+
+        res.status(200).json({
+            success: true,
+            count: orders.length,
+            data: orders
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
+// @desc    Update order status (Admin only)
+// @route   PUT /api/v1/orders/:id/status
+// @access  Private/Admin
+export const updateOrderStatus = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { status } = req.body;
+
+        const validStatuses = ['PENDING', 'PAID', 'SHIPPED', 'DELIVERED'];
+        if (!validStatuses.includes(status)) {
+            return next(new ErrorResponse('Invalid status value', 400));
+        }
+
+        const order = await prisma.order.findUnique({
+            where: { id: req.params.id as string }
+        });
+
+        if (!order) {
+            return next(new ErrorResponse(`Order not found with id of ${req.params.id}`, 404));
+        }
+
+        const updatedOrder = await prisma.order.update({
+            where: { id: req.params.id as string },
+            data: { status },
+            include: { items: true }
+        });
+
+        res.status(200).json({
+            success: true,
+            data: updatedOrder
+        });
+    } catch (err) {
+        next(err);
+    }
+};
