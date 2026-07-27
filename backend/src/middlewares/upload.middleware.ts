@@ -29,3 +29,12 @@ export const upload = multer({
         checkFileType(file, cb);
     }
 });
+
+// Naya: multiple files ke liye (max 4)
+export const uploadMultiple = multer({
+    storage: storage,
+    limits: { fileSize: 5000000 }, // 5MB per file
+    fileFilter: function (req, file, cb) {
+        checkFileType(file, cb);
+    }
+});

@@ -15,6 +15,11 @@ interface Variant {
     sku: string;
 }
 
+interface ExistingImage {
+    id: string;
+    url: string;
+}
+
 export default function EditProductPage() {
     const router = useRouter();
     const { id } = useParams();
@@ -27,7 +32,10 @@ export default function EditProductPage() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState("");
-    const [imageFile, setImageFile] = useState<File | null>(null);
+
+    const [imageFiles, setImageFiles] = useState<File[]>([]);
+    const [existingImages, setExistingImages] = useState<ExistingImage[]>([]);
+    const [deletingImageId, setDeletingImageId] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -40,6 +48,7 @@ export default function EditProductPage() {
                     setBasePrice(String(data.data.basePrice));
                     setDiscount(data.data.discount ? String(data.data.discount) : "");
                     setVariants(data.data.variants);
+                    setExistingImages(data.data.imageObjects || []);
                 }
             } catch (err) {
                 console.error(err);
@@ -54,6 +63,41 @@ export default function EditProductPage() {
         const updated = [...variants];
         updated[index].stock = stock;
         setVariants(updated);
+    };
+
+    const handleDeleteImage = async (imageId: string) => {
+        const confirmed = window.confirm("Delete this image?");
+        if (!confirmed) return;
+
+        setDeletingImageId(imageId);
+        const token = localStorage.getItem("admin_token");
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/products/${id}/photo/${imageId}`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await res.json();
+            if (data.success) {
+                setExistingImages((prev) => prev.filter((img) => img.id !== imageId));
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setDeletingImageId(null);
+        }
+    };
+
+    const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files ? Array.from(e.target.files) : [];
+        const availableSlots = 4 - existingImages.length;
+
+        if (files.length > availableSlots) {
+            alert(`You can only add ${availableSlots} more image(s).`);
+            setImageFiles(files.slice(0, availableSlots));
+        } else {
+            setImageFiles(files);
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -92,10 +136,10 @@ export default function EditProductPage() {
                 return;
             }
 
-            // Agar nayi image select ki hai, usse upload karo
-            if (imageFile) {
+            // Agar nayi images select ki hain, unhe upload karo
+            if (imageFiles.length > 0) {
                 const formData = new FormData();
-                formData.append("image", imageFile);
+                imageFiles.forEach((file) => formData.append("images", file));
 
                 const uploadRes = await fetch(`${API_BASE_URL}/products/${id}/photo`, {
                     method: "PUT",
@@ -174,15 +218,44 @@ export default function EditProductPage() {
                 </div>
 
                 <div>
-                    <label className="text-sm font-bold">Update Product Image (optional)</label>
-                    <input
-                        type="file"
-                        accept="image/jpeg,image/png,image/webp"
-                        onChange={(e) => setImageFile(e.target.files ? e.target.files[0] : null)}
-                        className="w-full mt-1 px-4 py-2 border rounded-lg"
-                    />
+                    <label className="text-sm font-bold">Product Images</label>
+
+                    {existingImages.length > 0 && (
+                        <div className="grid grid-cols-4 gap-3 mt-2 mb-3">
+                            {existingImages.map((img) => (
+                                <div
+                                    key={img.id}
+                                    className="relative aspect-square rounded-lg overflow-hidden border group"
+                                >
+                                    <img
+                                        src={img.url}
+                                        alt="product"
+                                        className="w-full h-full object-cover"
+                                    />
+                                    <button
+                                        type="button"
+                                        disabled={deletingImageId === img.id}
+                                        onClick={() => handleDeleteImage(img.id)}
+                                        className="absolute top-1 right-1 bg-red-500 text-white text-xs w-6 h-6 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {existingImages.length < 4 && (
+                        <input
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            multiple
+                            onChange={handleImageSelect}
+                            className="w-full mt-1 px-4 py-2 border rounded-lg"
+                        />
+                    )}
                     <p className="text-xs text-muted-foreground mt-1">
-                        Sirf tab select karo jab image change karni ho — khaali chhod sakte ho.
+                        {existingImages.length}/4 images used.
                     </p>
                 </div>
 

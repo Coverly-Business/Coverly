@@ -21,7 +21,7 @@ export default function Footer() {
                             Premium mobile covers designed in India. We combine protection with personal style.
                         </p>
                         <div className="flex items-center gap-4">
-                            <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><Instagram className="h-5 w-5" /></Link>
+                            <Link href="https://www.instagram.com/coverly_____?igsh=MWcyZjh2ZXBlcTExbg==" className="text-muted-foreground hover:text-primary transition-colors"><Instagram className="h-5 w-5" /></Link>
                             <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><Twitter className="h-5 w-5" /></Link>
                             <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><Facebook className="h-5 w-5" /></Link>
                         </div>
@@ -51,9 +51,9 @@ export default function Footer() {
                         <h4 className="font-bold text-sm uppercase tracking-widest mb-6">Newsletter</h4>
                         <p className="text-sm text-muted-foreground">Subscribe to get special offers and first look at new designs.</p>
                         <div className="flex gap-2">
-                            <input 
-                                type="email" 
-                                placeholder="Enter your email" 
+                            <input
+                                type="email"
+                                placeholder="Enter your email"
                                 className="bg-muted border-transparent focus:bg-background focus:border-primary/30 h-10 px-4 rounded-xl text-sm outline-none flex-1 transition-all"
                             />
                             <button className="bg-primary text-primary-foreground p-2 rounded-xl hover:opacity-90 transition-opacity">
@@ -62,7 +62,7 @@ export default function Footer() {
                         </div>
                     </div>
                 </div>
-                
+
                 <div className="mt-16 pt-8 border-t flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-bold text-muted-foreground uppercase tracking-widest">
                     <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4">
                         <p>&copy; 2026 Coverly Premium. All rights reserved.</p>

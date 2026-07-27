@@ -42,7 +42,8 @@ export const getProduct = async (req: Request, res: Response, next: NextFunction
         const formattedProduct = {
             ...product,
             _id: product.id,
-            images: product.images.map((img: any) => img.url)
+            images: product.images.map((img: any) => img.url),
+            imageObjects: product.images.map((img: any) => ({ id: img.id, url: img.url }))
         };
 
         res.status(200).json({ success: true, data: formattedProduct });
@@ -142,41 +143,71 @@ export const deleteProduct = async (req: Request, res: Response, next: NextFunct
 };
 
 // Upload photo for product
+// Upload photo(s) for product
 export const uploadProductImage = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const product = await prisma.product.findUnique({
-            where: { id: req.params.id as string }
+            where: { id: req.params.id as string },
+            include: { images: true }
         });
 
         if (!product) {
             return next(new ErrorResponse(`Product not found with id of ${req.params.id}`, 404));
         }
 
-        if (!req.file) {
-            return next(new ErrorResponse(`Please upload a file`, 400));
+        const files = req.files as Express.Multer.File[];
+
+        if (!files || files.length === 0) {
+            return next(new ErrorResponse(`Please upload at least one file`, 400));
         }
 
-        // Use cloudinary to upload
-        const fileStr = req.file.path;
-        const uploadResponse = await cloudinary.uploader.upload(fileStr);
+        const existingCount = product.images.length;
+        const totalAfterUpload = existingCount + files.length;
 
-        // Purani saari images hata do is product ki
-        await prisma.image.deleteMany({
-            where: { productId: req.params.id as string }
-        });
+        if (totalAfterUpload > 4) {
+            return next(new ErrorResponse(`Maximum 4 images allowed per product. You already have ${existingCount}, and tried to add ${files.length}.`, 400));
+        }
 
-        // Nayi image add karo
-        const newImage = await prisma.image.create({
-            data: {
-                url: uploadResponse.secure_url,
-                productId: req.params.id as string
-            }
-        });
+        // Har file ko Cloudinary pe upload karo, ek-ek karke
+        const uploadedImages = [];
+        for (const file of files) {
+            const uploadResponse = await cloudinary.uploader.upload(file.path);
+            const newImage = await prisma.image.create({
+                data: {
+                    url: uploadResponse.secure_url,
+                    productId: req.params.id as string
+                }
+            });
+            uploadedImages.push(newImage.url);
+        }
 
         res.status(200).json({
             success: true,
-            data: newImage.url
+            data: uploadedImages
         });
+    } catch (err) {
+        next(err);
+    }
+};
+
+// @desc    Delete a specific image from a product
+// @route   DELETE /api/v1/products/:id/photo/:imageId
+// @access  Private/Admin
+export const deleteProductImage = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const image = await prisma.image.findUnique({
+            where: { id: req.params.imageId as string }
+        });
+
+        if (!image || image.productId !== req.params.id) {
+            return next(new ErrorResponse(`Image not found`, 404));
+        }
+
+        await prisma.image.delete({
+            where: { id: req.params.imageId as string }
+        });
+
+        res.status(200).json({ success: true, data: {} });
     } catch (err) {
         next(err);
     }

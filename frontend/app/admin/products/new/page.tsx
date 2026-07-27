@@ -22,7 +22,7 @@ export default function NewProductPage() {
     const [category, setCategory] = useState("Mobile Phone Covers");
     const [material, setMaterial] = useState("");
     const [discount, setDiscount] = useState("");
-    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imageFiles, setImageFiles] = useState<File[]>([]);
     const [variants, setVariants] = useState<VariantInput[]>([
         { phoneBrand: "", phoneModel: "", caseType: "", color: "", stock: 0, sku: "" },
     ]);
@@ -83,9 +83,9 @@ export default function NewProductPage() {
             const newProductId = data.data._id;
 
             // Step 2: Agar image select ki hai, usse upload karo
-            if (imageFile) {
+            if (imageFiles.length > 0) {
                 const formData = new FormData();
-                formData.append("image", imageFile);
+                imageFiles.forEach((file) => formData.append("images", file));
 
                 const uploadRes = await fetch(`${API_BASE_URL}/products/${newProductId}/photo`, {
                     method: "PUT",
@@ -184,16 +184,28 @@ export default function NewProductPage() {
                 </div>
 
                 <div>
-                    <label className="text-sm font-bold">Product Image</label>
+                    <label className="text-sm font-bold">Product Images (up to 4)</label>
                     <input
                         type="file"
                         accept="image/jpeg,image/png,image/webp"
-                        onChange={(e) => setImageFile(e.target.files ? e.target.files[0] : null)}
+                        multiple
+                        onChange={(e) => {
+                            const files = e.target.files ? Array.from(e.target.files) : [];
+                            if (files.length > 4) {
+                                alert("Maximum 4 images allowed. Only the first 4 will be used.");
+                                setImageFiles(files.slice(0, 4));
+                            } else {
+                                setImageFiles(files);
+                            }
+                        }}
                         className="w-full mt-1 px-4 py-2 border rounded-lg"
                     />
                     <p className="text-xs text-muted-foreground mt-1">
-                        JPEG, PNG ya WebP — max 5MB
+                        First image will be the main display image. Max 4 images, JPEG/PNG/WebP, 5MB each.
                     </p>
+                    {imageFiles.length > 0 && (
+                        <p className="text-xs text-green-600 mt-1">{imageFiles.length} image(s) selected</p>
+                    )}
                 </div>
 
                 <div>

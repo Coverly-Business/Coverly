@@ -45,6 +45,7 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
     const dispatch = useDispatch();
     const router = useRouter();
     const [selectedModel, setSelectedModel] = useState('');
+    const [selectedImageIndex, setSelectedImageIndex] = useState(0);
     const [adding, setAdding] = useState(false);
 
     const lenis = useLenis();
@@ -62,6 +63,10 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
             lenis?.start();
         };
     }, [isOpen, lenis]);
+
+    useEffect(() => {
+        setSelectedImageIndex(0);
+    }, [product?._id]);
 
     if (!product) return null;
 
@@ -149,9 +154,9 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
                             {/* Left: Premium Image Gallery */}
                             <div className="space-y-6">
                                 <div className="relative aspect-[4/5] overflow-hidden rounded-[32px] bg-muted shadow-inner">
-                                    {product.images[0] ? (
+                                    {product.images[selectedImageIndex] ? (
                                         <Image
-                                            src={product.images[0]}
+                                            src={product.images[selectedImageIndex]}
                                             alt={product.name}
                                             fill
                                             className="object-cover transition-transform duration-700 hover:scale-105"
@@ -170,13 +175,27 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
                                         <Heart className="h-5 w-5" />
                                     </button>
                                 </div>
-                                <div className="grid grid-cols-4 gap-4">
-                                    {[1, 2, 3, 4].map(i => (
-                                        <div key={i} className="aspect-square rounded-2xl bg-muted border-2 border-transparent hover:border-primary transition-all cursor-pointer overflow-hidden">
-                                            <Image src={product.images[0]} alt="thumb" width={100} height={100} className="object-cover opacity-50 hover:opacity-100 transition-opacity" />
-                                        </div>
-                                    ))}
-                                </div>
+                                {product.images.length > 1 && (
+                                    <div className="grid grid-cols-4 gap-4">
+                                        {product.images.map((img, i) => (
+                                            <div
+                                                key={i}
+                                                onClick={() => setSelectedImageIndex(i)}
+                                                className={`aspect-square rounded-2xl bg-muted border-2 transition-all cursor-pointer overflow-hidden ${selectedImageIndex === i ? 'border-primary' : 'border-transparent hover:border-primary/50'
+                                                    }`}
+                                            >
+                                                <Image
+                                                    src={img}
+                                                    alt={`${product.name} view ${i + 1}`}
+                                                    width={100}
+                                                    height={100}
+                                                    className={`object-cover transition-opacity ${selectedImageIndex === i ? 'opacity-100' : 'opacity-50 hover:opacity-100'
+                                                        }`}
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
 
                             {/* Right: Detailed Info */}

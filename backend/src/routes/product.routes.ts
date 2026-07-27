@@ -1,7 +1,7 @@
 import express from 'express';
-import { getProducts, getProduct, createProduct, updateProduct, deleteProduct, uploadProductImage } from '../controllers/product.controller';
+import { getProducts, getProduct, createProduct, updateProduct, deleteProduct, uploadProductImage, deleteProductImage } from '../controllers/product.controller';
 import { protect, authorize } from '../middlewares/auth.middleware';
-import { upload } from '../middlewares/upload.middleware';
+import { uploadMultiple } from '../middlewares/upload.middleware';
 
 const router = express.Router();
 
@@ -16,6 +16,9 @@ router.route('/:id')
     .delete(protect, authorize('admin'), deleteProduct);
 
 router.route('/:id/photo')
-    .put(protect, authorize('admin'), upload.single('image'), uploadProductImage);
+    .put(protect, authorize('admin'), uploadMultiple.array('images', 4), uploadProductImage);
+
+router.route('/:id/photo/:imageId')
+    .delete(protect, authorize('admin'), deleteProductImage);
 
 export default router;
