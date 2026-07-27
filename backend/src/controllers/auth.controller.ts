@@ -3,6 +3,9 @@ import prisma from '../config/prisma';
 import ErrorResponse from '../utils/errorResponse';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import { OAuth2Client } from 'google-auth-library';
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -58,6 +61,57 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
         }
 
         // Remove password from response
+        const userResponse = { ...user, _id: user.id };
+        delete (userResponse as any).password;
+
+        sendTokenResponse(userResponse, 200, res);
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const googleLogin = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { credential } = req.body;
+
+        if (!credential) {
+            return res.status(400).json({ success: false, error: 'Google credential missing' });
+        }
+
+        // Google se token verify karo
+        const ticket = await googleClient.verifyIdToken({
+            idToken: credential,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+
+        const payload = ticket.getPayload();
+
+        if (!payload || !payload.email) {
+            return res.status(400).json({ success: false, error: 'Invalid Google token' });
+        }
+
+        const { email, name } = payload;
+
+        // Check karo user pehle se exist karta hai
+        let user = await prisma.user.findUnique({ where: { email } });
+
+        if (!user) {
+            // Naya user banao (Google se signup)
+            // Random password generate karte hain kyunki schema mein password required hai
+            const randomPassword = Math.random().toString(36).slice(-12);
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(randomPassword, salt);
+
+            user = await prisma.user.create({
+                data: {
+                    name: name || 'Coverly User',
+                    email,
+                    password: hashedPassword,
+                    role: 'user',
+                },
+            });
+        }
+
         const userResponse = { ...user, _id: user.id };
         delete (userResponse as any).password;
 

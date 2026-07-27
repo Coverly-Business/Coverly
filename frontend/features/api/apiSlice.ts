@@ -45,6 +45,14 @@ export const apiSlice = createApi({
             }),
             invalidatesTags: ['User']
         }),
+        googleLogin: builder.mutation({
+            query: (credential) => ({
+                url: '/auth/google',
+                method: 'POST',
+                body: { credential }
+            }),
+            invalidatesTags: ['User']
+        }),
         register: builder.mutation({
             query: (userData) => ({
                 url: '/auth/register',
@@ -56,4 +64,4 @@ export const apiSlice = createApi({
     })
 });
 
-export const { useGetProductsQuery, useGetProductQuery, useCreateOrderMutation, useLoginMutation, useRegisterMutation } = apiSlice;
+export const { useGetProductsQuery, useGetProductQuery, useCreateOrderMutation, useLoginMutation, useRegisterMutation, useGoogleLoginMutation } = apiSlice;

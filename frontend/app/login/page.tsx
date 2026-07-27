@@ -4,21 +4,22 @@ import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useDispatch } from "react-redux";
-import { useLoginMutation } from "@/features/api/apiSlice";
+import { useLoginMutation, useGoogleLoginMutation } from "@/features/api/apiSlice";
 import { setCredentials } from "@/features/auth/authSlice";
 import { Button } from "@/components/ui/button";
+import { useEffect, useRef } from "react";
 
 function LoginForm() {
     const router = useRouter();
     const dispatch = useDispatch();
     const searchParams = useSearchParams();
     const [login, { isLoading }] = useLoginMutation();
-
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
-
     const signupSuccess = searchParams.get("signup") === "success";
+    const [googleLogin] = useGoogleLoginMutation();
+    const googleButtonRef = useRef<HTMLDivElement>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -39,6 +40,35 @@ function LoginForm() {
             setError(err?.data?.error || "Invalid email or password.");
         }
     };
+
+    const handleGoogleResponse = async (response: any) => {
+        try {
+            const result = await googleLogin(response.credential).unwrap();
+            dispatch(
+                setCredentials({
+                    user: result.data,
+                    token: result.token,
+                })
+            );
+            router.push("/products");
+        } catch (err: any) {
+            setError("Google login failed. Please try again.");
+        }
+    };
+
+    useEffect(() => {
+        if (typeof window !== "undefined" && (window as any).google && googleButtonRef.current) {
+            (window as any).google.accounts.id.initialize({
+                client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+                callback: handleGoogleResponse,
+            });
+            (window as any).google.accounts.id.renderButton(googleButtonRef.current, {
+                theme: "outline",
+                size: "large",
+                width: 320,
+            });
+        }
+    }, []);
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-muted/30 py-20">
@@ -85,6 +115,14 @@ function LoginForm() {
                 <Button type="submit" className="w-full h-12 font-bold" disabled={isLoading}>
                     {isLoading ? "Logging in..." : "Login"}
                 </Button>
+
+                <div className="flex items-center gap-3 my-2">
+                    <div className="flex-1 h-px bg-muted" />
+                    <span className="text-xs text-muted-foreground">OR</span>
+                    <div className="flex-1 h-px bg-muted" />
+                </div>
+
+                <div ref={googleButtonRef} className="flex justify-center" />
 
                 <p className="text-center text-sm text-muted-foreground">
                     Don&apos;t have an account?{" "}
