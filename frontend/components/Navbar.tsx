@@ -7,8 +7,11 @@ import { Search, ShoppingCart, User, Menu, X, ChevronDown, Sparkles, Phone, Zap,
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { selectCartCount } from '@/features/cart/cartSlice';
+import { selectCurrentUser } from '@/features/auth/authSlice';
+import { logout } from '@/features/auth/authSlice';
+import { LogOut, Package } from 'lucide-react';
 
 export default function Navbar() {
     const cartCount = useSelector(selectCartCount);
@@ -17,6 +20,15 @@ export default function Navbar() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const user = useSelector(selectCurrentUser);
+    const dispatch = useDispatch();
+    const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
+
+    const handleLogout = () => {
+        dispatch(logout());
+        setIsAccountMenuOpen(false);
+        router.push('/');
+    };
 
     useEffect(() => {
         const handleScroll = () => {
@@ -41,11 +53,11 @@ export default function Navbar() {
     ];
 
     return (
-        <header 
+        <header
             className={cn(
                 "sticky top-0 z-[100] w-full transition-all duration-300 border-b",
-                isScrolled 
-                    ? "bg-background/80 backdrop-blur-xl border-border shadow-sm py-2" 
+                isScrolled
+                    ? "bg-background/80 backdrop-blur-xl border-border shadow-sm py-2"
                     : "bg-background border-transparent py-4"
             )}
         >
@@ -63,8 +75,8 @@ export default function Navbar() {
                 {/* Desktop Nav */}
                 <nav className="hidden md:flex items-center space-x-1">
                     {navLinks.map((link) => (
-                        <Link 
-                            key={link.href} 
+                        <Link
+                            key={link.href}
                             href={link.href}
                             className={cn(
                                 "px-4 py-2 text-sm font-bold transition-all rounded-full hover:bg-muted",
@@ -74,7 +86,7 @@ export default function Navbar() {
                             {link.label}
                         </Link>
                     ))}
-                    
+
                     {/* Categories Dropdown */}
                     <div className="relative group px-4 py-2 text-sm font-bold text-muted-foreground hover:text-foreground transition-all rounded-full hover:bg-muted cursor-pointer flex items-center gap-1">
                         Categories <ChevronDown className="h-4 w-4" />
@@ -96,14 +108,14 @@ export default function Navbar() {
                 </nav>
 
                 {/* Global Search */}
-                <form 
+                <form
                     onSubmit={handleSearch}
                     className="hidden lg:flex flex-1 max-w-sm relative group items-center"
                 >
                     <Search className="absolute left-3.5 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                    <input 
-                        type="text" 
-                        placeholder="Search for models..." 
+                    <input
+                        type="text"
+                        placeholder="Search for models..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-full bg-muted/50 border-transparent focus:bg-background focus:border-primary/30 h-10 pl-10 pr-4 rounded-full text-sm outline-none transition-all ring-primary/10 focus:ring-4"
@@ -112,11 +124,55 @@ export default function Navbar() {
 
                 {/* Action Icons */}
                 <div className="ml-auto flex items-center space-x-2 md:space-x-4">
-                    <Link href="/login" className="hidden sm:flex">
-                        <Button variant="ghost" size="icon" className="rounded-full">
-                            <User className="h-5 w-5" />
-                        </Button>
-                    </Link>
+                    <div className="relative hidden sm:block">
+                        {user ? (
+                            <>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="rounded-full"
+                                    onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)}
+                                >
+                                    <User className="h-5 w-5" />
+                                </Button>
+
+                                <AnimatePresence>
+                                    {isAccountMenuOpen && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: -10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -10 }}
+                                            className="absolute top-full right-0 mt-2 w-56 bg-background border rounded-2xl shadow-xl overflow-hidden z-[110]"
+                                        >
+                                            <div className="px-4 py-3 border-b">
+                                                <p className="text-sm font-bold truncate">{user.name}</p>
+                                                <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                                            </div>
+                                            <Link
+                                                href="/account/orders"
+                                                onClick={() => setIsAccountMenuOpen(false)}
+                                                className="flex items-center gap-2 px-4 py-3 text-sm hover:bg-muted transition-colors"
+                                            >
+                                                <Package className="h-4 w-4" /> My Orders
+                                            </Link>
+                                            <button
+                                                onClick={handleLogout}
+                                                className="w-full flex items-center gap-2 px-4 py-3 text-sm text-red-500 hover:bg-red-50 transition-colors"
+                                            >
+                                                <LogOut className="h-4 w-4" /> Logout
+                                            </button>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </>
+                        ) : (
+                            <Link href="/login">
+                                <Button variant="ghost" size="icon" className="rounded-full">
+                                    <User className="h-5 w-5" />
+                                </Button>
+                            </Link>
+                        )}
+                    </div>
                     <Link href="/cart">
                         <Button variant="ghost" size="icon" className="rounded-full relative">
                             <ShoppingCart className="h-5 w-5" />
@@ -127,11 +183,11 @@ export default function Navbar() {
                             )}
                         </Button>
                     </Link>
-                    
+
                     {/* Mobile Menu Toggle */}
-                    <Button 
-                        variant="ghost" 
-                        size="icon" 
+                    <Button
+                        variant="ghost"
+                        size="icon"
                         className="md:hidden rounded-full"
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                     >
@@ -143,21 +199,21 @@ export default function Navbar() {
             {/* Mobile Menu */}
             <AnimatePresence>
                 {isMobileMenuOpen && (
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
                         className="md:hidden bg-background border-t overflow-hidden"
                     >
                         <div className="container px-4 py-6 space-y-4">
-                            <form 
+                            <form
                                 onSubmit={handleSearch}
                                 className="relative group flex items-center"
                             >
                                 <Search className="absolute left-3.5 h-4 w-4 text-muted-foreground" />
-                                <input 
-                                    type="text" 
-                                    placeholder="Search models..." 
+                                <input
+                                    type="text"
+                                    placeholder="Search models..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     className="w-full bg-muted h-12 pl-10 pr-4 rounded-2xl text-sm outline-none border-transparent focus:border-primary/30 transition-all"
@@ -165,8 +221,8 @@ export default function Navbar() {
                             </form>
                             <div className="flex flex-col space-y-2">
                                 {navLinks.map((link) => (
-                                    <Link 
-                                        key={link.href} 
+                                    <Link
+                                        key={link.href}
                                         href={link.href}
                                         onClick={() => setIsMobileMenuOpen(false)}
                                         className="px-4 py-3 text-lg font-bold text-muted-foreground hover:text-primary transition-colors hover:bg-muted rounded-2xl"

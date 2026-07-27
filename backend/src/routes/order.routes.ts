@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createOrder, getOrder, getOrders, updateOrderStatus } from '../controllers/order.controller';
+import { createOrder, getOrder, getOrders, getMyOrders, updateOrderStatus } from '../controllers/order.controller';
 import { protect, authorize } from '../middlewares/auth.middleware';
 
 const router = Router();
@@ -7,6 +7,9 @@ const router = Router();
 router.route('/')
     .post(createOrder)
     .get(protect, authorize('admin'), getOrders);
+
+router.route('/my-orders')
+    .get(protect, getMyOrders);
 
 router.route('/:id')
     .get(getOrder);

@@ -8,7 +8,7 @@ import { sendOrderConfirmationEmail } from '../utils/sendEmail';
 // @access  Public (Guest Friendly)
 export const createOrder = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { items, shippingAddress, totalAmount, paymentMethod, guestEmail } = req.body;
+        const { items, shippingAddress, totalAmount, paymentMethod, guestEmail, userId } = req.body;
 
         if (!items || items.length === 0) {
             return next(new ErrorResponse('Please add items to your cart', 400));
@@ -20,6 +20,7 @@ export const createOrder = async (req: Request, res: Response, next: NextFunctio
             const newOrder = await tx.order.create({
                 data: {
                     guestEmail,
+                    userId: userId || null,
                     totalAmount,
                     shippingAddress: JSON.stringify(shippingAddress),
                     paymentMethod,
@@ -106,6 +107,30 @@ export const getOrders = async (req: Request, res: Response, next: NextFunction)
         next(err);
     }
 };
+
+// @desc    Get logged-in user's own orders
+// @route   GET /api/v1/orders/my-orders
+// @access  Private
+export const getMyOrders = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const userId = (req as any).user?.id;
+
+        const orders = await prisma.order.findMany({
+            where: { userId },
+            include: { items: true },
+            orderBy: { createdAt: 'desc' }
+        });
+
+        res.status(200).json({
+            success: true,
+            count: orders.length,
+            data: orders
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
 
 // @desc    Update order status (Admin only)
 // @route   PUT /api/v1/orders/:id/status

@@ -37,7 +37,23 @@ export const apiSlice = createApi({
             }),
             invalidatesTags: ['Order']
         }),
+        login: builder.mutation({
+            query: (credentials) => ({
+                url: '/auth/login',
+                method: 'POST',
+                body: credentials
+            }),
+            invalidatesTags: ['User']
+        }),
+        register: builder.mutation({
+            query: (userData) => ({
+                url: '/auth/register',
+                method: 'POST',
+                body: userData
+            }),
+            invalidatesTags: ['User']
+        }),
     })
 });
 
-export const { useGetProductsQuery, useGetProductQuery, useCreateOrderMutation } = apiSlice;
+export const { useGetProductsQuery, useGetProductQuery, useCreateOrderMutation, useLoginMutation, useRegisterMutation } = apiSlice;

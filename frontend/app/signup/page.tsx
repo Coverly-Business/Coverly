@@ -1,42 +1,34 @@
 "use client";
 
-import { useState, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useDispatch } from "react-redux";
-import { useLoginMutation } from "@/features/api/apiSlice";
+import { useRegisterMutation } from "@/features/api/apiSlice";
 import { setCredentials } from "@/features/auth/authSlice";
 import { Button } from "@/components/ui/button";
 
-function LoginForm() {
+export default function SignupPage() {
     const router = useRouter();
     const dispatch = useDispatch();
-    const searchParams = useSearchParams();
-    const [login, { isLoading }] = useLoginMutation();
+    const [register, { isLoading }] = useRegisterMutation();
 
+    const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
-
-    const signupSuccess = searchParams.get("signup") === "success";
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
 
         try {
-            const result = await login({ email, password }).unwrap();
+            await register({ name, email, password }).unwrap();
 
-            dispatch(
-                setCredentials({
-                    user: result.data,
-                    token: result.token,
-                })
-            );
-
-            router.push("/products");
+            // Signup successful — ab login page pe bhejo, auto-login nahi karna
+            router.push("/login?signup=success");
         } catch (err: any) {
-            setError(err?.data?.error || "Invalid email or password.");
+            setError(err?.data?.error || "Signup failed. Please try again.");
         }
     };
 
@@ -47,18 +39,23 @@ function LoginForm() {
                 className="bg-background p-8 rounded-2xl shadow-xl w-full max-w-sm space-y-4"
             >
                 <h1 className="text-2xl font-black uppercase italic text-center mb-6">
-                    Login
+                    Create Account
                 </h1>
-
-                {signupSuccess && (
-                    <p className="text-sm text-green-600 bg-green-50 p-2 rounded">
-                        Account created successfully! Please login.
-                    </p>
-                )}
 
                 {error && (
                     <p className="text-sm text-red-500 bg-red-50 p-2 rounded">{error}</p>
                 )}
+
+                <div>
+                    <label className="text-sm font-bold">Full Name</label>
+                    <input
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        className="w-full mt-1 px-4 py-2 border rounded-lg"
+                        required
+                    />
+                </div>
 
                 <div>
                     <label className="text-sm font-bold">Email</label>
@@ -78,29 +75,22 @@ function LoginForm() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         className="w-full mt-1 px-4 py-2 border rounded-lg"
+                        minLength={6}
                         required
                     />
                 </div>
 
                 <Button type="submit" className="w-full h-12 font-bold" disabled={isLoading}>
-                    {isLoading ? "Logging in..." : "Login"}
+                    {isLoading ? "Creating Account..." : "Sign Up"}
                 </Button>
 
                 <p className="text-center text-sm text-muted-foreground">
-                    Don&apos;t have an account?{" "}
-                    <Link href="/signup" className="text-primary font-bold hover:underline">
-                        Sign Up
+                    Already have an account?{" "}
+                    <Link href="/login" className="text-primary font-bold hover:underline">
+                        Login
                     </Link>
                 </p>
             </form>
         </div>
-    );
-}
-
-export default function LoginPage() {
-    return (
-        <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
-            <LoginForm />
-        </Suspense>
     );
 }

@@ -23,6 +23,7 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
+import { selectCurrentUser } from "@/features/auth/authSlice";
 
 export default function CheckoutPage() {
     const cartItems = useSelector(selectCartItems);
@@ -33,6 +34,7 @@ export default function CheckoutPage() {
     const [loading, setLoading] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState<'COD' | 'CARD' | 'UPI'>('CARD');
     const [orderPlaced, setOrderPlaced] = useState(false);
+    const currentUser = useSelector(selectCurrentUser);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -68,7 +70,8 @@ export default function CheckoutPage() {
                     totalAmount: total,
                     shippingAddress: formData,
                     paymentMethod,
-                    guestEmail: formData.email
+                    guestEmail: formData.email,
+                    userId: currentUser?.id || currentUser?._id || null
                 }),
             });
 
