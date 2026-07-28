@@ -78,9 +78,7 @@ export default function MyOrdersPage() {
 
     return (
         <div className="container mx-auto max-w-4xl py-12 px-4">
-            <h1 className="text-3xl md:text-4xl font-black uppercase italic mb-8">
-                My <span className="text-primary italic">Orders</span>
-            </h1>
+            <h2 className="text-xl font-bold mb-6">Order History</h2>
 
             {orders.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-32 bg-muted/30 rounded-3xl text-center">

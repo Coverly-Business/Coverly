@@ -41,9 +41,9 @@ export default function Footer() {
                         <h4 className="font-bold text-sm uppercase tracking-widest mb-6">Support</h4>
                         <ul className="space-y-4 text-sm font-medium text-muted-foreground">
                             <li><Link href="/track-order" className="hover:text-primary transition-colors">Track Order</Link></li>
-                            <li><Link href="#" className="hover:text-primary transition-colors">Shipping Policy</Link></li>
-                            <li><Link href="#" className="hover:text-primary transition-colors">Return & Refund</Link></li>
-                            <li><Link href="#" className="hover:text-primary transition-colors">FAQs</Link></li>
+                            <li><Link href="/shipping-policy" className="hover:text-primary transition-colors">Shipping Policy</Link></li>
+                            <li><Link href="/return-refund" className="hover:text-primary transition-colors">Return & Refund</Link></li>
+                            <li><Link href="/faqs" className="hover:text-primary transition-colors">FAQs</Link></li>
                         </ul>
                     </div>
 
@@ -68,12 +68,12 @@ export default function Footer() {
                         <p>&copy; 2026 Coverly Premium. All rights reserved.</p>
                         <span className="hidden md:inline-block h-1 w-1 rounded-full bg-border" />
                         <p className="flex items-center gap-1.5">
-                            Crafted with <span className="text-red-500 animate-pulse">❤️</span> by <span className="text-primary italic">Aniket Gupta</span>
+                            Crafted with <span className="text-red-500 animate-pulse">❤️</span> by <span className="text-primary italic">Coverly Team</span>
                         </p>
                     </div>
                     <div className="flex gap-6">
-                        <Link href="#" className="hover:text-foreground">Privacy Policy</Link>
-                        <Link href="#" className="hover:text-foreground">Terms of Use</Link>
+                        <Link href="/privacy-policy" className="hover:text-foreground">Privacy Policy</Link>
+                        <Link href="/terms-of-use" className="hover:text-foreground">Terms of Use</Link>
                     </div>
                 </div>
             </div>

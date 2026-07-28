@@ -130,7 +130,7 @@ export default function CheckoutPage() {
                                         name="name"
                                         value={formData.name}
                                         onChange={handleInputChange}
-                                        placeholder="Aniket Gupta"
+                                        placeholder="Coverly Team"
                                         className="w-full h-14 rounded-2xl bg-muted/50 border-transparent focus:bg-background focus:border-primary/30 outline-none px-6 text-sm font-bold transition-all ring-primary/5 focus:ring-4"
                                     />
                                 </div>
