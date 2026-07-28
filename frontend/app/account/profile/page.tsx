@@ -6,6 +6,7 @@ import { selectCurrentUser, selectCurrentToken, setCredentials } from "@/feature
 import { API_BASE_URL } from "@/config/api";
 import { Button } from "@/components/ui/button";
 import { Camera, Loader2 } from "lucide-react";
+import { ShimmerBox, ShimmerText, ShimmerCircle } from "@/components/Shimmer";
 
 export default function MyProfilePage() {
     const dispatch = useDispatch();
@@ -114,7 +115,21 @@ export default function MyProfilePage() {
         }
     };
 
-    if (loading) return <div>Loading profile...</div>;
+    if (loading) {
+        return (
+            <div className="space-y-8 max-w-md mx-auto">
+                <ShimmerText className="w-32 h-6 mx-auto" />
+                <div className="flex flex-col items-center gap-3">
+                    <ShimmerCircle className="h-24 w-24" />
+                </div>
+                <div className="space-y-4">
+                    <ShimmerBox className="h-10 w-full" />
+                    <ShimmerBox className="h-10 w-full" />
+                    <ShimmerBox className="h-10 w-full" />
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-8 max-w-md mx-auto">

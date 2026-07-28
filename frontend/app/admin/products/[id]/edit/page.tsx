@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { API_BASE_URL } from "@/config/api";
+import { toast } from "sonner";
 
 interface Variant {
     id: string;
@@ -93,7 +94,7 @@ export default function EditProductPage() {
         const availableSlots = 4 - existingImages.length;
 
         if (files.length > availableSlots) {
-            alert(`You can only add ${availableSlots} more image(s).`);
+            toast.warning(`You can only add ${availableSlots} more image(s).`);
             setImageFiles(files.slice(0, availableSlots));
         } else {
             setImageFiles(files);

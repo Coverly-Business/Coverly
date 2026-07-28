@@ -6,6 +6,7 @@ import { selectCurrentToken } from "@/features/auth/authSlice";
 import { API_BASE_URL } from "@/config/api";
 import { Button } from "@/components/ui/button";
 import { MapPin, Trash2, Plus } from "lucide-react";
+import { ShimmerBox, ShimmerText } from "@/components/Shimmer";
 
 interface Address {
     id: string;
@@ -125,12 +126,25 @@ export default function SavedAddressesPage() {
         }
     };
 
-    if (loading) return <div>Loading addresses...</div>;
+    if (loading) {
+        return (
+            <div className="space-y-6 max-w-2xl mx-auto">
+                <div className="flex items-center justify-between">
+                    <ShimmerText className="w-40 h-6" />
+                    <ShimmerBox className="w-24 h-9" />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <ShimmerBox className="h-32" />
+                    <ShimmerBox className="h-32" />
+                </div>
+            </div>
+        );
+    }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 max-w-2xl mx-auto">
             <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold">Saved Addresses</h2>
+                <h2 className="text-xl font-bold text-center flex-1">Saved Addresses</h2>
                 <Button
                     size="sm"
                     className="font-bold"

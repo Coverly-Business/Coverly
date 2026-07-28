@@ -7,6 +7,7 @@ import { useDispatch } from "react-redux";
 import { useRegisterMutation } from "@/features/api/apiSlice";
 import { setCredentials } from "@/features/auth/authSlice";
 import { Button } from "@/components/ui/button";
+import PasswordInput from "@/components/PasswordInput";
 
 export default function SignupPage() {
     const router = useRouter();
@@ -70,14 +71,7 @@ export default function SignupPage() {
 
                 <div>
                     <label className="text-sm font-bold">Password</label>
-                    <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="w-full mt-1 px-4 py-2 border rounded-lg"
-                        minLength={6}
-                        required
-                    />
+                    <PasswordInput value={password} onChange={(e) => setPassword(e.target.value)} minLength={6} required />
                 </div>
 
                 <Button type="submit" className="w-full h-12 font-bold" disabled={isLoading}>

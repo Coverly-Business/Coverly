@@ -11,6 +11,7 @@ import { useDispatch } from 'react-redux';
 import { addItem, CartItem } from '@/features/cart/cartSlice';
 import { useRouter } from 'next/navigation';
 import { useLenis } from 'lenis/react';
+import { toast } from "sonner";
 
 interface Variant {
     phoneBrand: string;
@@ -95,6 +96,7 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
         setTimeout(() => {
             dispatch(addItem(cartItem));
             setAdding(false);
+            toast.success(`${product.name} added to cart!`);
         }, 500);
     };
 

@@ -24,6 +24,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { selectCurrentUser } from "@/features/auth/authSlice";
+import { toast } from "sonner";
 
 export default function CheckoutPage() {
     const cartItems = useSelector(selectCartItems);
@@ -82,11 +83,11 @@ export default function CheckoutPage() {
                 router.push(`/order-success?id=${data.data.id}`);
                 dispatch(clearCart());
             } else {
-                alert('Something went wrong. Please try again.');
+                toast.error('Something went wrong. Please try again.');
             }
         } catch (err) {
             console.error(err);
-            alert('Failed to place order.');
+            toast.error('Failed to place order.');
         } finally {
             setLoading(false);
         }

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { API_BASE_URL } from "@/config/api";
+import { toast } from "sonner";
 
 interface VariantInput {
     phoneBrand: string;
@@ -192,7 +193,7 @@ export default function NewProductPage() {
                         onChange={(e) => {
                             const files = e.target.files ? Array.from(e.target.files) : [];
                             if (files.length > 4) {
-                                alert("Maximum 4 images allowed. Only the first 4 will be used.");
+                                toast.warning("Maximum 4 images allowed. Only the first 4 will be used.");
                                 setImageFiles(files.slice(0, 4));
                             } else {
                                 setImageFiles(files);

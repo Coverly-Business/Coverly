@@ -8,6 +8,7 @@ import { useLoginMutation, useGoogleLoginMutation } from "@/features/api/apiSlic
 import { setCredentials } from "@/features/auth/authSlice";
 import { Button } from "@/components/ui/button";
 import { useEffect, useRef } from "react";
+import PasswordInput from "@/components/PasswordInput";
 
 function LoginForm() {
     const router = useRouter();
@@ -103,13 +104,7 @@ function LoginForm() {
 
                 <div>
                     <label className="text-sm font-bold">Password</label>
-                    <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="w-full mt-1 px-4 py-2 border rounded-lg"
-                        required
-                    />
+                    <PasswordInput value={password} onChange={(e) => setPassword(e.target.value)} required />
                 </div>
 
                 <Button type="submit" className="w-full h-12 font-bold" disabled={isLoading}>

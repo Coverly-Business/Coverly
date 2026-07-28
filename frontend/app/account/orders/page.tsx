@@ -7,6 +7,7 @@ import Link from "next/link";
 import { selectCurrentUser, selectCurrentToken } from "@/features/auth/authSlice";
 import { API_BASE_URL } from "@/config/api";
 import { Package } from "lucide-react";
+import { ShimmerBox } from "@/components/Shimmer";
 
 interface OrderItem {
     id: string;
@@ -73,7 +74,13 @@ export default function MyOrdersPage() {
     };
 
     if (loading) {
-        return <div className="container mx-auto max-w-4xl py-20 px-4">Loading your orders...</div>;
+        return (
+            <div className="container mx-auto max-w-4xl py-12 px-4 space-y-4">
+                <ShimmerBox className="h-28" />
+                <ShimmerBox className="h-28" />
+                <ShimmerBox className="h-28" />
+            </div>
+        );
     }
 
     return (

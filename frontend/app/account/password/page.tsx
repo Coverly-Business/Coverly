@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 import { selectCurrentToken } from "@/features/auth/authSlice";
 import { API_BASE_URL } from "@/config/api";
 import { Button } from "@/components/ui/button";
+import PasswordInput from "@/components/PasswordInput";
 
 export default function ChangePasswordPage() {
     const token = useSelector(selectCurrentToken);
@@ -71,37 +72,18 @@ export default function ChangePasswordPage() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <label className="text-sm font-bold">Current Password</label>
-                    <input
-                        type="password"
-                        value={currentPassword}
-                        onChange={(e) => setCurrentPassword(e.target.value)}
-                        className="w-full mt-1 px-4 py-2 border rounded-lg"
-                        required
-                    />
+                    <label className="text-sm font-bold">New Password</label>
+                    <PasswordInput value={newPassword} onChange={(e) => setNewPassword(e.target.value)} minLength={6} required />
                 </div>
 
                 <div>
                     <label className="text-sm font-bold">New Password</label>
-                    <input
-                        type="password"
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        className="w-full mt-1 px-4 py-2 border rounded-lg"
-                        minLength={6}
-                        required
-                    />
+                    <PasswordInput value={newPassword} onChange={(e) => setNewPassword(e.target.value)} minLength={6} required />
                 </div>
 
                 <div>
                     <label className="text-sm font-bold">Confirm New Password</label>
-                    <input
-                        type="password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="w-full mt-1 px-4 py-2 border rounded-lg"
-                        required
-                    />
+                    <PasswordInput value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
                 </div>
 
                 <Button type="submit" className="w-full font-bold" disabled={saving}>
