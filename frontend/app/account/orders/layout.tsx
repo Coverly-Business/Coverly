@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import Link from "next/link";
 import { selectCurrentUser } from "@/features/auth/authSlice";
 import { cn } from "@/lib/utils";
-import { User, Package, MapPin, Lock } from "lucide-react";
+import { User, Package, MapPin, Lock, Heart } from "lucide-react";
 
 export default function AccountLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter();
@@ -26,6 +26,7 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
         { href: "/account/orders", label: "My Orders", icon: Package },
         { href: "/account/addresses", label: "Saved Addresses", icon: MapPin },
         { href: "/account/password", label: "Change Password", icon: Lock },
+        { href: "/account/wishlist", label: "My Wishlist", icon: Heart }
     ];
 
     return (

@@ -8,6 +8,7 @@ import authRoutes from './routes/auth.routes';
 import productRoutes from './routes/product.routes';
 import orderRoutes from './routes/order.routes';
 import userRoutes from './routes/user.routes';
+import wishlistRoutes from './routes/wishlist.routes';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
@@ -29,6 +30,7 @@ app.use(cookieParser());
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/products', productRoutes);
 app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/wishlist', wishlistRoutes);
 app.use('/api/v1/orders', orderRoutes);
 
 // Error Handler

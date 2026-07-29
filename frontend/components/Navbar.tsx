@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Search, ShoppingCart, User, Menu, X, ChevronDown, Sparkles, Phone, Zap, Headphones, MapPin, Lock } from 'lucide-react';
+import { Search, ShoppingCart, User, Menu, X, ChevronDown, Sparkles, Phone, Zap, Headphones, MapPin, Lock, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -165,6 +165,13 @@ export default function Navbar() {
                                                 className="flex items-center gap-2 px-4 py-3 text-sm hover:bg-muted transition-colors"
                                             >
                                                 <Package className="h-4 w-4" /> My Orders
+                                            </Link>
+                                            <Link
+                                                href="/account/wishlist"
+                                                onClick={() => setIsAccountMenuOpen(false)}
+                                                className="flex items-center gap-2 px-4 py-3 text-sm hover:bg-muted transition-colors"
+                                            >
+                                                <Heart className="h-4 w-4" /> My Wishlist
                                             </Link>
                                             <Link
                                                 href="/account/addresses"

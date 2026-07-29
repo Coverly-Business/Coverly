@@ -19,6 +19,15 @@ model User {
   createdAt DateTime  @default(now())
 }
 
+model Wishlist {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String  @db.ObjectId
+  productId String  @db.ObjectId
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+}
+
 model Address {
   id        String  @id @default(auto()) @map("_id") @db.ObjectId
   label     String  // e.g. "Home", "Office"

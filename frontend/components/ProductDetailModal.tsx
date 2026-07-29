@@ -12,6 +12,7 @@ import { addItem, CartItem } from '@/features/cart/cartSlice';
 import { useRouter } from 'next/navigation';
 import { useLenis } from 'lenis/react';
 import { toast } from "sonner";
+import { useWishlist } from "@/hooks/useWishlist";
 
 interface Variant {
     phoneBrand: string;
@@ -46,6 +47,7 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
     const dispatch = useDispatch();
     const router = useRouter();
     const [selectedModel, setSelectedModel] = useState('');
+    const { isWishlisted, toggleWishlist } = useWishlist();
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
     const [adding, setAdding] = useState(false);
 
@@ -173,8 +175,11 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
                                             {product.material || 'Authentic'}
                                         </div>
                                     </div>
-                                    <button className="absolute bottom-6 right-6 p-4 rounded-full glass text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-xl">
-                                        <Heart className="h-5 w-5" />
+                                    <button
+                                        onClick={() => toggleWishlist(product._id, product.name)}
+                                        className="absolute bottom-6 right-6 p-4 rounded-full glass text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-xl"
+                                    >
+                                        <Heart className={`h-5 w-5 ${isWishlisted(product._id) ? "fill-current" : ""}`} />
                                     </button>
                                 </div>
                                 {product.images.length > 1 && (
