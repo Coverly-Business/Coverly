@@ -12,8 +12,20 @@ import { Toaster } from "sonner";
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Coverly | Premium Mobile Covers',
-  description: 'Shop the best mobile covers in India',
+  metadataBase: new URL('https://coverly-nine.vercel.app'),
+  title: {
+    default: 'Coverly | Premium Mobile Covers',
+    template: '%s | Coverly',
+  },
+  description: 'Shop premium, precision-fit mobile covers for iPhone, Samsung, OnePlus, and more — designed in India, delivered worldwide.',
+  openGraph: {
+    title: 'Coverly | Premium Mobile Covers',
+    description: 'Shop premium, precision-fit mobile covers designed in India.',
+    url: 'https://coverly-nine.vercel.app',
+    siteName: 'Coverly',
+    locale: 'en_IN',
+    type: 'website',
+  },
 };
 
 import Navbar from '@/components/Navbar';

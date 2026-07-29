@@ -237,7 +237,7 @@ export default function Navbar() {
                         exit={{ opacity: 0, height: 0 }}
                         className="md:hidden bg-background border-t overflow-hidden"
                     >
-                        <div className="container px-4 py-6 space-y-4">
+                        <div className="container px-4 py-6 space-y-4 max-h-[75vh] overflow-y-auto">
                             <form
                                 onSubmit={handleSearch}
                                 className="relative group flex items-center"
@@ -269,6 +269,79 @@ export default function Navbar() {
                                         <Link href="/products?category=Chargers" onClick={() => setIsMobileMenuOpen(false)} className="py-2 text-sm text-muted-foreground hover:text-primary">Fast Chargers</Link>
                                         <Link href="/products?category=Audio Accessories" onClick={() => setIsMobileMenuOpen(false)} className="py-2 text-sm text-muted-foreground hover:text-primary">Audio Accessories</Link>
                                     </div>
+                                </div>
+
+                                {/* Login / Account Section */}
+                                <div className="border-t pt-4 mt-2">
+                                    {user ? (
+                                        <>
+                                            <div className="px-4 py-2 flex items-center gap-3">
+                                                {user.avatar ? (
+                                                    <img src={user.avatar} alt={user.name} className="h-10 w-10 rounded-full object-cover" />
+                                                ) : (
+                                                    <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                                                        <User className="h-5 w-5 text-muted-foreground" />
+                                                    </div>
+                                                )}
+                                                <div>
+                                                    <p className="text-sm font-bold">{user.name}</p>
+                                                    <p className="text-xs text-muted-foreground">{user.email}</p>
+                                                </div>
+                                            </div>
+                                            <Link
+                                                href="/account/profile"
+                                                onClick={() => setIsMobileMenuOpen(false)}
+                                                className="flex items-center gap-2 px-4 py-3 text-sm font-bold text-muted-foreground hover:text-primary hover:bg-muted rounded-2xl transition-colors"
+                                            >
+                                                <User className="h-4 w-4" /> My Profile
+                                            </Link>
+                                            <Link
+                                                href="/account/orders"
+                                                onClick={() => setIsMobileMenuOpen(false)}
+                                                className="flex items-center gap-2 px-4 py-3 text-sm font-bold text-muted-foreground hover:text-primary hover:bg-muted rounded-2xl transition-colors"
+                                            >
+                                                <Package className="h-4 w-4" /> My Orders
+                                            </Link>
+                                            <Link
+                                                href="/account/wishlist"
+                                                onClick={() => setIsMobileMenuOpen(false)}
+                                                className="flex items-center gap-2 px-4 py-3 text-sm font-bold text-muted-foreground hover:text-primary hover:bg-muted rounded-2xl transition-colors"
+                                            >
+                                                <Heart className="h-4 w-4" /> My Wishlist
+                                            </Link>
+                                            <Link
+                                                href="/account/addresses"
+                                                onClick={() => setIsMobileMenuOpen(false)}
+                                                className="flex items-center gap-2 px-4 py-3 text-sm font-bold text-muted-foreground hover:text-primary hover:bg-muted rounded-2xl transition-colors"
+                                            >
+                                                <MapPin className="h-4 w-4" /> Saved Addresses
+                                            </Link>
+                                            <Link
+                                                href="/account/password"
+                                                onClick={() => setIsMobileMenuOpen(false)}
+                                                className="flex items-center gap-2 px-4 py-3 text-sm font-bold text-muted-foreground hover:text-primary hover:bg-muted rounded-2xl transition-colors"
+                                            >
+                                                <Lock className="h-4 w-4" /> Change Password
+                                            </Link>
+                                            <button
+                                                onClick={() => {
+                                                    handleLogout();
+                                                    setIsMobileMenuOpen(false);
+                                                }}
+                                                className="w-full flex items-center gap-2 px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 rounded-2xl transition-colors"
+                                            >
+                                                <LogOut className="h-4 w-4" /> Logout
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <Link
+                                            href="/login"
+                                            onClick={() => setIsMobileMenuOpen(false)}
+                                            className="flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold bg-primary text-primary-foreground rounded-2xl"
+                                        >
+                                            <User className="h-4 w-4" /> Login / Sign Up
+                                        </Link>
+                                    )}
                                 </div>
                             </div>
                         </div>
