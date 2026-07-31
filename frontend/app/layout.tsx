@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { ReactLenis } from 'lenis/react';
 import Script from 'next/script';
 import { Toaster } from "sonner";
+import GoogleAnalytics from '@/components/GoogleAnalytics';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -51,6 +52,7 @@ export default function RootLayout({
           </ReactLenis>
         </StoreProvider>
         <Toaster position="top-center" richColors />
+        <GoogleAnalytics />
         <Script src="https://accounts.google.com/gsi/client" strategy="beforeInteractive" />
       </body>
     </html>
