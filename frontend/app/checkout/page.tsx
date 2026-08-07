@@ -36,7 +36,6 @@ export default function CheckoutPage() {
     const [paymentMethod, setPaymentMethod] = useState<'COD' | 'CARD' | 'UPI'>('CARD');
     const [orderPlaced, setOrderPlaced] = useState(false);
     const currentUser = useSelector(selectCurrentUser);
-
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -63,34 +62,110 @@ export default function CheckoutPage() {
         setLoading(true);
 
         try {
-            const res = await fetch(`${API_BASE_URL}/orders`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    items: cartItems,
-                    totalAmount: total,
-                    shippingAddress: formData,
-                    paymentMethod,
-                    guestEmail: formData.email,
-                    userId: currentUser?.id || currentUser?._id || null
-                }),
-            });
-
-            const data = await res.json();
-
-            if (data.success) {
-                setOrderPlaced(true);
-                router.push(`/order-success?id=${data.data.id}`);
-                dispatch(clearCart());
+            if (paymentMethod === 'COD') {
+                // COD ke liye — seedha order create karo, jaisa pehle hota tha
+                await createOrder('PENDING');
             } else {
-                toast.error('Something went wrong. Please try again.');
+                // CARD/UPI ke liye — pehle Razorpay se payment lo
+                await handleRazorpayPayment();
             }
         } catch (err) {
             console.error(err);
-            toast.error('Failed to place order.');
-        } finally {
+            toast.error('Something went wrong. Please try again.');
             setLoading(false);
         }
+    };
+
+    const createOrder = async (status: string, paymentDetails?: any) => {
+        const res = await fetch(`${API_BASE_URL}/orders`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                items: cartItems,
+                totalAmount: total,
+                shippingAddress: formData,
+                paymentMethod,
+                guestEmail: formData.email,
+                userId: currentUser?.id || currentUser?._id || null,
+                ...(paymentDetails && { razorpayPaymentId: paymentDetails.razorpay_payment_id }),
+            }),
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            setOrderPlaced(true);
+            router.push(`/order-success?id=${data.data.id}`);
+            dispatch(clearCart());
+        } else {
+            toast.error(data.error || 'Failed to place order. Please try again.');
+            setLoading(false);
+        }
+    };
+
+    const handleRazorpayPayment = async () => {
+        if (typeof (window as any).Razorpay === 'undefined') {
+            toast.error('Payment gateway is still loading. Please try again in a moment.');
+            setLoading(false);
+            return;
+        }
+        // Step 1: Backend se Razorpay order banwao
+        const orderRes = await fetch(`${API_BASE_URL}/payment/create-order`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: total }),
+        });
+        const orderData = await orderRes.json();
+
+        if (!orderData.success) {
+            toast.error('Failed to initiate payment.');
+            setLoading(false);
+            return;
+        }
+
+        // Step 2: Razorpay ka popup kholo
+        const options = {
+            key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+            amount: orderData.data.amount,
+            currency: 'INR',
+            name: 'Coverly',
+            description: 'Order Payment',
+            order_id: orderData.data.id,
+            handler: async function (response: any) {
+                // Step 3: Payment successful — verify karo
+                const verifyRes = await fetch(`${API_BASE_URL}/payment/verify`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        razorpay_order_id: response.razorpay_order_id,
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        razorpay_signature: response.razorpay_signature,
+                    }),
+                });
+                const verifyData = await verifyRes.json();
+
+                if (verifyData.success) {
+                    // Step 4: Payment verified — ab order create karo
+                    await createOrder('PAID', response);
+                } else {
+                    toast.error('Payment verification failed.');
+                    setLoading(false);
+                }
+            },
+            prefill: {
+                name: formData.name,
+                email: formData.email,
+                contact: formData.phone,
+            },
+            theme: { color: '#4F46E5' },
+            modal: {
+                ondismiss: function () {
+                    setLoading(false);
+                },
+            },
+        };
+
+        const razorpayInstance = new (window as any).Razorpay(options);
+        razorpayInstance.open();
     };
 
     return (

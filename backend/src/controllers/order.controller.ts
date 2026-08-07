@@ -8,7 +8,7 @@ import { sendOrderConfirmationEmail } from '../utils/sendEmail';
 // @access  Public (Guest Friendly)
 export const createOrder = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { items, shippingAddress, totalAmount, paymentMethod, guestEmail, userId } = req.body;
+        const { items, shippingAddress, totalAmount, paymentMethod, guestEmail, userId, razorpayPaymentId } = req.body;
 
         if (!items || items.length === 0) {
             return next(new ErrorResponse('Please add items to your cart', 400));
@@ -16,7 +16,33 @@ export const createOrder = async (req: Request, res: Response, next: NextFunctio
 
         // Create order and items in a transaction
         const order = await prisma.$transaction(async (tx) => {
-            // 1. Create the Order
+            // Step 1: Pehle confirm karo har item ka enough stock hai
+            for (const item of items) {
+                const variant = await tx.variant.findUnique({
+                    where: { sku: item.sku || item.id }
+                });
+
+                if (!variant) {
+                    throw new ErrorResponse(`Product variant not found for SKU: ${item.sku || item.id}`, 404);
+                }
+
+                if (variant.stock < item.quantity) {
+                    throw new ErrorResponse(
+                        `Insufficient stock for ${item.name}. Only ${variant.stock} left.`,
+                        400
+                    );
+                }
+            }
+
+            // Step 2: Stock kam karo har variant ka
+            for (const item of items) {
+                await tx.variant.update({
+                    where: { sku: item.sku || item.id },
+                    data: { stock: { decrement: item.quantity } }
+                });
+            }
+
+            // Step 3: Order create karo
             const newOrder = await tx.order.create({
                 data: {
                     guestEmail,
@@ -24,7 +50,7 @@ export const createOrder = async (req: Request, res: Response, next: NextFunctio
                     totalAmount,
                     shippingAddress: JSON.stringify(shippingAddress),
                     paymentMethod,
-                    status: paymentMethod === 'COD' ? 'PENDING' : 'PAID', // Simulated payment
+                    status: paymentMethod === 'COD' ? 'PENDING' : (razorpayPaymentId ? 'PAID' : 'PENDING'),
                     items: {
                         create: items.map((item: any) => ({
                             productId: item.productId,
